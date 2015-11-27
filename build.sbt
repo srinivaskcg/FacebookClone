@@ -1,18 +1,26 @@
-name := "Facebook"
+val akka = "2.3.9"
 
-version := "0.1"
+val spray = "1.3.2"
 
-scalaVersion := "2.11.7"
+resolvers += Resolver.url("TypeSafe Ivy releases", url("http://dl.bintray.com/typesafe/ivy-releases/"))(Resolver.ivyStylePatterns)
 
-resolvers += "spray repo" at "http://repo.spray.io"
-
-libraryDependencies ++= {
-	val akkaVersion = "2.3.9"
-	val sprayVersion = "1.3.3"
-	Seq("com.typesafe.akka" %% "akka-actor"     % akkaVersion,
-		"io.spray"          %% "spray-can"      % sprayVersion,
-		"io.spray"          %% "spray-routing"  % sprayVersion,
-		"io.spray"          %% "spray-json"     % "1.3.2" ,
-		"io.spray"          %%  "spray-client"  % sprayVersion,
-	    "org.json4s"        %%  "json4s-native" % "3.3.0")
-		}
+libraryDependencies ++=
+    Seq(
+        // -- Logging --
+        "ch.qos.logback" % "logback-classic" % "1.1.2",
+        "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
+        // -- Akka --
+        "com.typesafe.akka" %% "akka-testkit" % akka % "test",
+        "com.typesafe.akka" %% "akka-actor" % akka,
+        "com.typesafe.akka" %% "akka-slf4j" % akka,
+        // -- Spray --
+        "io.spray" %% "spray-routing" % spray,
+        "io.spray" %% "spray-client" % spray,
+        "io.spray" %% "spray-testkit" % spray % "test",
+        // -- json --
+        "io.spray" %% "spray-json" % "1.3.1",
+        // -- config --
+        "com.typesafe" % "config" % "1.2.1",
+        // -- testing --
+        "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+    )
