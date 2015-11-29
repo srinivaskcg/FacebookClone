@@ -1,19 +1,15 @@
 package Nodes
 
 import scala.collection.mutable.LinkedHashMap
-import scala.collection.mutable.MutableList
+import java.util.HashMap
 
-class Comment(_commentID: BigInt,
-    _createdBy: BigInt,
-    _creationDate: String,
-    _content: String,
-    _likesCount: BigInt,
-    _likesList: Map[Int, BigInt]) {
+class Comment {
 
-  val commentID: BigInt = _commentID
-  val createdBy: BigInt = _createdBy
-  val creationDate: String = _creationDate
-  val content: String = _content
-  val likesCount: BigInt = _likesCount
-  val likesList: Map[Int, BigInt] = _likesList
+  var commentID: Long = 0L
+  var content: String = new String()
+  var createdBy: String = new String()
+  var creationDate: String = new String()
+  var likesCount: String = new String()
+  var likesList: HashMap[String, String] = new HashMap[String, String]()
+
 }
