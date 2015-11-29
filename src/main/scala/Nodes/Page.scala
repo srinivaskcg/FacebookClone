@@ -1,20 +1,15 @@
 package Nodes
 
 import scala.collection.mutable.MutableList
+import java.util.HashMap
 
-class Page(_pageID: BigInt,
-    _createdBy: BigInt,
-    _creationDate: String,
-    _name: String,
-    _description: String,
-    _likesList: Map[Int, BigInt],
-    _posts: Map[Int, BigInt]) {
+class Page {
 
-  val pageID: BigInt = _pageID
-  val createdBy: BigInt = _createdBy
-  val creationDate: String = _creationDate
-  val name: String = _name
-  val description: String = _description
-  val likesList: Map[Int, BigInt] = _likesList
-  val posts: Map[Int, BigInt] = _posts
+  var pageID: Long = 0L
+  var name: String = new String()
+  var createdBy: String = new String()
+  var creationDate: String = new String()
+  var description: String = new String()
+  var likesList: HashMap[String, String] = new HashMap[String, String]()
+  var posts: HashMap[Int, Post] = new HashMap[Int, Post]()
 }

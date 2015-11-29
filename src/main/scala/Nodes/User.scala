@@ -7,22 +7,17 @@ import java.util.Date
 
 import Nodes._
 
-class User(_userID: BigInt,
-    _creationDate: String,
-    _firstName: String,
-    _lastName: String,
-    _dateOfBirth: String,
-    _friends: Map[Int,BigInt],
-    _friendRequests: Map[Int,BigInt],
-    _posts: Map[Int,BigInt]) {
+class User() {
 
-  val userID: BigInt = _userID
-  val creationDate: String = _creationDate
-  val firstName: String = _firstName
-  val lastName: String = _lastName
-  val dateOfBirth: String = _dateOfBirth
-  val friends: Map[Int,BigInt] = _friends
-  val friendRequests: Map[Int,BigInt] = _friendRequests
-  val posts: Map[Int,BigInt] = _posts
+  var userID: String = new String()
+  var firstName: String = new String()
+  var lastName: String = new String()
+  var dateOfBirth: String = new String()
+  var creationDate: String = new String()
+  var email: String = new String()
+  var pendingRequests: Map[String, String] = new HashMap[String, String]
+  var friends: Map[String, String] = new HashMap[String, String]
+  var posts: HashMap[Int, Post] = new HashMap[Int, Post]()
+  var pages: Map[String, Page] = new HashMap[String, Page]()
 }
  

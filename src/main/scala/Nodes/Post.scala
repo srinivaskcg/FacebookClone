@@ -2,16 +2,15 @@ package Nodes
 
 import scala.collection.immutable.HashMap
 
-class Post(_postID: BigInt,
-    _createdBy: BigInt,
-    _creationDate: String,
-    _content: String,
-    _location: String) {
+class Post {
 
-  val postID: BigInt = _postID
-  val createdBy: BigInt = _createdBy
-  val creationDate: String = _creationDate
-  val content: String = _content
-  val location: String = _location
+  var postID: Long = 0L
+  var createdBy: String = new String()
+  var creationDate: String = new String()
+  var content: String = new String()
+  var location: String = new String()
+  var likes: HashMap[Int, String] = new HashMap[Int, String]()
+  var comments: HashMap[Int, Comment] = new HashMap[Int, Comment]()
+  var shares: HashMap[Int, String] = new HashMap[Int, String]()
 
 }
