@@ -1,4 +1,5 @@
 import akka.actor.{ ActorSystem, Actor, Props }
+import akka.actor._
 import akka.io.IO
 import akka.util.Timeout
 
@@ -40,6 +41,11 @@ object Project4 extends App {
   var pageDB: Map[String, Page] = new HashMap[String, Page]()
 
   var userIDMap: Map[String, String] = new HashMap[String, String]()
+  
+   val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
+   val postActor = serverActorSystem.actorOf(Props(new PostActor()), "postActor")
+   val pageActor = serverActorSystem.actorOf(Props(new PageActor()), "pageActor")
+   val commentActor = serverActorSystem.actorOf(Props(new CommentActor()), "commentActor")
 
   class Server extends Actor with userTrait with postTrait with pageTrait //with commentTrait 
   {
@@ -82,31 +88,35 @@ object Project4 extends App {
       } ~ get {
         path(Segment / "userInfo") { (ofUser) =>
           println(ofUser)
-          val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
+          //val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
           requestContext =>
             userActor ! serverGetUserInfo(requestContext, ofUser)
+            //userActor ! PoisonPill
         }
       } ~ post {
         path(Segment / Segment / "friendRequest") { (sender, receiver) =>
           println("friend Request")
-          val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
+          //val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
           requestContext =>
             userActor ! serverSendFriendRequest(requestContext, sender, receiver)
+            //userActor ! PoisonPill
         } ~
           path(Segment / Segment / "handleRequest") { (sender, receiver) =>
-            val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
+           // val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
             entity(as[String]) { action =>
               requestContext =>
                 userActor ! serverManageFriendRequest(requestContext, sender, receiver, action)
+             //   userActor ! PoisonPill
             }
           }
-      } ~ delete {
+      }/* ~ delete {
         path(IntNumber / "deleteUser") { ofUser =>
           val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
           requestContext =>
             userActor ! deleteUser(ofUser)
+            userActor ! PoisonPill
         }
-      }
+      }*/
     }
   }
 
@@ -217,9 +227,10 @@ object Project4 extends App {
         path(Segment / "posts") { ofUser =>
           println("getting posts for" + ofUser)
           
-          val postActor = serverActorSystem.actorOf(Props(new PostActor()), "postActor")
+        //  val postActor = serverActorSystem.actorOf(Props(new PostActor()), "postActor")
           requestContext =>
             postActor ! serverGetUserPosts(requestContext, ofUser)
+          //  postActor ! PoisonPill
         }
       } /*~ post {
           path(IntNumber / IntNumber / "updatePost") { (sentUser, reqUser) =>
@@ -256,7 +267,7 @@ object Project4 extends App {
         println(" end of loop" + returnPostMap)
         //var retPostMap = returnPostMap.toJson
         //println(retPostMap)
-        requestContext.complete(returnPostMap)
+        requestContext.complete(returnPostMap.keys.toList)
     }
   }
 
@@ -322,51 +333,22 @@ object Project4 extends App {
           println("Pending friend list of " + senderUserID + " = " + userDB.get(receiverUserID).get.pendingRequests)
           reqContext.complete("Friend Request from " + senderUserID + " from " + receiverUserID + " sent successfully\n" +
             "Pending friend List of " + receiverUserID + " now is " + userDB.get(receiverUserID).get.pendingRequests)
-        }
-
-      case serverManageFriendRequest(reqContext: RequestContext, senderUserID: String, receiverUserID: String, action: String) =>
-
-        //var receiverUserID = userIDMap(receiverID)
-        //var senderUserID = userIDMap(senderID)
-
-        println("processing friend request of " + senderUserID + " by user " + receiverUserID)
-        println("pendingList of " + receiverUserID + " before processing of the response= " + userDB.get(receiverUserID).get.pendingRequests)
-        var pendingList = userDB.get(receiverUserID).get.pendingRequests
-        if (pendingList.contains(senderUserID)) {
-          if (action.equalsIgnoreCase("Accept")) {
-            userDB.get(receiverUserID).get.friends += (pendingList.get(senderUserID).get -> pendingList.get(senderUserID).get)
-            userDB.get(receiverUserID).get.pendingRequests -= (senderUserID)
-            reqContext.complete(receiverUserID + "accepted the friend request of " + senderUserID)
-            println("Friend List of user " + receiverUserID + "= " + userDB(receiverUserID).friends)
-            println("Pending Friend List of user " + receiverUserID + "= " + userDB.get(receiverUserID).get.pendingRequests)
-          } else if (action.equalsIgnoreCase("Reject")) {
-            userDB.get(receiverUserID).get.pendingRequests.-=("ofUser")
-            reqContext.complete(receiverUserID + " rejected the friend request of " + receiverUserID)
-          }
-        } else {
-          if (userDB.get(receiverUserID).get.friends.contains(senderUserID)) {
-            reqContext.complete(senderUserID + " is already a friend of " + receiverUserID)
-          } else {
-            reqContext.complete(senderUserID + " is already a friend of " + receiverUserID)
-          }
-        }
+        }     
     }
   }
-  /*trait commentTrait extends HttpService {
+  
+  trait commentTrait extends HttpService {
     import spray.httpx.SprayJsonSupport._
 
     val receivePathComment = {
-      pathPrefix("comment") {
-        path("createComment") {
-          entity(as[caseUser]) { newUserInfo =>
-            println("Finally Inside")
-            var newUser: User = new User(newUserInfo.userID, newUserInfo.creationDate, newUserInfo.firstName,
-              newUserInfo.lastName, newUserInfo.dateOfBirth)
+      path("createComment") {
+          entity(as[caseComment]) { newCaseComment =>
+             requestContext =>
+            commentActor ! serverCommentOnPost(requestContext, newCaseComment)
 
-            userDB.+=(newUserInfo.userID -> newUser)
-            complete("Registered New User")
           }
-        } ~ get {
+        }
+      /* ~ get {
           path(IntNumber / "getComment") { ofUser =>
             requestContext =>
               commentActor ! getPostInfo(requestContext, ofUser)
@@ -382,49 +364,27 @@ object Project4 extends App {
               commentActor ! deleteComment(requestContext, ofUser)
           }
         }
-      }
-    }
-  }
-
-  class PageActor() extends Actor {
-
-    def receive = {
-      case getUserInfo(reqContext: RequestContext, ofUser: Int) =>
-
-        if (userDB.contains(ofUser)) {
-
-          var user: User = userDB(ofUser)
-
-          var userInfo: caseUser = new caseUser(user.userID, user.creationDate, user.firstName,
-            user.lastName, user.dateOfBirth)
-
-          var returnJson = userInfo.toJson
-
-          reqContext.complete(returnJson.toString())
-        }
+      }*/
     }
   }
 
   class CommentActor() extends Actor {
 
     def receive = {
-      case getUserInfo(ofUser: BigInt) =>
 
-        if (userDB.contains(ofUser)) {
+      case serverCommentOnPost(reqContext: RequestContext, newCaseComment: caseComment) =>
+        println("serverCommentOnPost case")
+          
+          userDB(newCaseComment.userPageID).posts.get(newCaseComment.postID).comments += (newCaseComment.commentID -> newCaseComment)
 
-          var user: User = userDB(ofUser)
-
-          var userInfo: caseUser = new caseUser(user.userID, user.creationDate, user.firstName,
-            user.lastName, user.dateOfBirth)
-
-          var returnJson = userInfo.toJson
-
-          reqContext.complete(returnJson.toString())
-        }
+          
+          println("Pending friend list of " + senderUserID + " = " + userDB.get(receiverUserID).get.pendingRequests)
+          reqContext.complete("Friend Request from " + senderUserID + " from " + receiverUserID + " sent successfully\n" +
+            "Pending friend List of " + receiverUserID + " now is " + userDB.get(receiverUserID).get.pendingRequests)
+        
     }
   }
-*/
-
+  
 }
 
 

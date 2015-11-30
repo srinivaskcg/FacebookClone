@@ -8,9 +8,16 @@ import spray.json.AdditionalFormats
 import spray.json.{ JsonFormat, DefaultJsonProtocol }
 import spray.client.pipelining._
 import spray.http._
+import org.json4s.jackson.JsonMethods._
+
+import org.json4s.jackson.Serialization
+import org.json4s.jackson.Serialization.{read,write}
+
 
 import scala.util.{ Success, Failure }
 import scala.concurrent.Future
+
+import org.json4s._
 
 import Nodes._
 import Common._
@@ -21,6 +28,7 @@ object Client {
   class User extends Actor {
     implicit val system = ActorSystem()
     import system.dispatcher
+    implicit val formats = Serialization.formats(NoTypeHints)
 
     var userName: String = new String()
     var url: String = "http://localhost:8082/"
@@ -188,6 +196,8 @@ object Client {
             println(httpResponse.status)
             if (httpResponse.status.isSuccess) {
               println("1" + httpResponse.entity.asString)
+              val data = parse(httpResponse.entity.asString).extract[List[Long]]
+              println(data.getClass)
             } else {
               println("2" + httpResponse.entity.asString)
             }
@@ -270,11 +280,14 @@ object Client {
             println(f.getMessage)
           }
         }
-      }
+      }*/
 
-      case commentOnPost(ofUser: String, postId: Int, comment: String) => {
-        val commentOnPostFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + ofUser + "/commentOnPost", new caseComment(postId, 0, comment)))
-        commentOnPostFuture.onComplete {
+      case commentOnPost(newCaseComment: caseComment) => {
+        
+        val reqUrl = url + "commentOnPost"
+        
+        val postCommentFuture: Future[HttpResponse] = pipeline(Post(reqUrl,newCaseComment))
+        postCommentFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
               println(httpResponse.entity.asString)
@@ -283,12 +296,13 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Comment sent to user " + ofUser + "'s post by " + userName + " failed with error message")
+            println("Comment failed with error message")
             println(f.getMessage)
           }
         }
       }
-
+      
+/*
       case getPostComments(ofUser: String) => {
         val getPostsOfUserFuture: Future[HttpResponse] = pipeline(Get(url + userName + "/" + ofUser + "/posts"))
         getPostsOfUserFuture.onComplete {

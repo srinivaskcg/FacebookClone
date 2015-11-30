@@ -22,5 +22,9 @@ libraryDependencies ++=
         // -- config --
         "com.typesafe" % "config" % "1.2.1",
         // -- testing --
-        "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+        "org.scalatest" %% "scalatest" % "2.2.1" % "test",
+	"org.json4s" %% "json4s-jackson" % "3.2.11",
+	"org.json4s" %% "json4s-ext" % "3.2.11"
+	"org.json4s" %% "json4s-native" % "3.2.11",
+	"org.json4s" %% "json4s-core" % "3.2.11"
     )

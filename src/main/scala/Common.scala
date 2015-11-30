@@ -36,7 +36,7 @@ object Common {
 
   case class casePage(createdBy: String, creationDate: String, name: String, description: String)
 
-  case class caseComment(commentID: BigInt, createdBy: BigInt, creationDate: String, content: String, likesCount: BigInt, likesList: Map[Int, BigInt])
+  case class caseComment(createdBy: String, creationDate: String, postID:Long, userPageID: String, content: String)
 
   object caseUser extends DefaultJsonProtocol {
     implicit val implicitPerson = jsonFormat6(caseUser.apply)
@@ -55,7 +55,7 @@ object Common {
   }
 
   object caseComment extends DefaultJsonProtocol {
-    implicit val implicitComment = jsonFormat6(caseComment.apply)
+    implicit val implicitComment = jsonFormat5(caseComment.apply)
   }
 
   // User Case Classes
@@ -68,9 +68,9 @@ object Common {
   // Post Case Classes  
   case class postOnWall(newCasePost: casePost) //done
   case class postOnOwnWall(newCasePost: casePost) //done
-  case class commentOnPost(ofUser: String, postId: Int, comment: String) //
+  case class commentOnPost(newCaseComment: caseComment) //
   
-  case class getUserPosts(ofUser: String) // error
+  case class getUserPosts(ofUser: String) // done
 
   // Page Case Classes
   case class createPage(caseNewPage: casePage) //done
@@ -103,6 +103,8 @@ object Common {
 
   case class serverGetUserPosts(reqContext: RequestContext, ofUser: String)
   case class serverPagePost(reqContext: RequestContext, pageId: String, newCasePost: casePost)
+  
+  case class serverCommentOnPost(reqContext: RequestContext, newCaseComment: caseComment) //
 
   // Generating a random BigInt and not present in the map
   implicit val randomIDGenerator = new SecureRandom()

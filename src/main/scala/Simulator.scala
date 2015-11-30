@@ -19,7 +19,7 @@ object Simulator extends App {
 
   var userActorArray: ArrayBuffer[ActorRef] = new ArrayBuffer[ActorRef]
 
-  for (act <- 0 to 1000) {
+  for (act <- 0 to 5) {
     println("Create user : "+act)
     var UserActor = fbSystem.actorOf(Props[Client.User], "UserActor" + act)
     val newCaseUser: caseUser = new caseUser( "user" + act,"27112015" + act, "firstName" + act, "lastName" + act, "12101988" + act, "email" + act)
@@ -29,14 +29,14 @@ object Simulator extends App {
   
   Thread.sleep(10000)
   
-  for (act <- 0 to 1000) {
+  for (act <- 0 to 5) {
     println("get user info : "+act)
     userActorArray(act) ! getUserInfo("user"+(act))
   }
   
   Thread.sleep(3000)
   
-  for (act <- 0 to 999) {
+  for (act <- 0 to 4) {
     println("sending friend request from: "+ act + " to: " + (act+1) )
     userActorArray(0) ! sendFriendRequest("user" + (act), "user" + (act + 1))
     Thread.sleep(1000)
@@ -44,7 +44,7 @@ object Simulator extends App {
     userActorArray(act + 1) ! manageFriendRequest("user" + (act+1), "user" + (act), "Accept")
   }
   
-  for (act <- 0 to 1000) {
+  for (act <- 0 to 5) {
     println("Create post : "+act)
     val newCasePost: casePost = new casePost("user" + act, "Dummy", "28112015" + act, "Post" + act, "Gainesville" + act)
     userActorArray(act) ! postOnOwnWall(newCasePost)
@@ -52,12 +52,12 @@ object Simulator extends App {
   
   //Thread.sleep(5000)
   
-  /*for (act <- 0 to 10) {
+  for (act <- 0 to 5) {
     println("get post info : "+act)
     userActorArray(act) ! getUserPosts("user"+(act))
-  }*/
+  }
   
-  for (act <- 1 to 1000) {
+  for (act <- 1 to 5) {
     println("Create post on wall : "+act)
     val newCasePost: casePost = new casePost("user" + act, "user" +(act-1), "28112015" + act, "Post" + act, "Gainesville" + act)
     userActorArray(act) ! postOnWall(newCasePost)
@@ -65,7 +65,7 @@ object Simulator extends App {
   
   Thread.sleep(3000)
   
-  for (act <- 0 to 100) {
+  for (act <- 0 to 5) {
     println("Create Page : "+act)
     val newCasePage: casePage = new casePage( "page" + act, "27112015" + act, "page name" + act, "page description " + act)
     userActorArray(act) ! createPage(newCasePage)
@@ -73,9 +73,11 @@ object Simulator extends App {
   
   Thread.sleep(3000)
   
-  for (act <- 0 to 1000) {
+  for (act <- 0 to 5) {
     println("Create Page Post: "+act)
     val newCasePost: casePost = new casePost("user" + act, "user" +(act-1), "28112015" + act, "Page Post" + act, "Gainesville" + act)
     userActorArray(act) ! createPagePost("page" + act, newCasePost)
   }
+  
+  fbSystem.shutdown()
 }
