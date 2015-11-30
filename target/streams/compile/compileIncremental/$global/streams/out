@@ -1,0 +1,101 @@
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mInitial source changes: [0m
+[0m[[0mdebug[0m] [0m	removed:Set()[0m
+[0m[[0mdebug[0m] [0m	added: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala)[0m
+[0m[[0mdebug[0m] [0m	modified: Set()[0m
+[0m[[0mdebug[0m] [0mRemoved products: Set()[0m
+[0m[[0mdebug[0m] [0mExternal API changes: API Changes: Set()[0m
+[0m[[0mdebug[0m] [0mModified binary dependencies: Set()[0m
+[0m[[0mdebug[0m] [0mInitial directly invalidated sources: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mSources indirectly invalidated by:[0m
+[0m[[0mdebug[0m] [0m	product: Set()[0m
+[0m[[0mdebug[0m] [0m	binary dep: Set()[0m
+[0m[[0mdebug[0m] [0m	external source: Set()[0m
+[0m[[0mdebug[0m] [0mAll initially invalidated sources: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala, C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala)[0m
+[0m[[0mdebug[0m] [0mRecompiling all 8 sources: invalidated sources (8) exceeded 50.0% of all sources[0m
+[0m[[0minfo[0m] [0mCompiling 8 Scala sources to C:\Users\KALYAN\workspace\Facebook\target\scala-2.10\classes...[0m
+[0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.10.4[0m
+[0m[[0mdebug[0m] [0mGetting compiler-interface from component compiler for Scala 2.10.4[0m
+[0m[[0mdebug[0m] [0mRunning cached compiler 1b824f04, interfacing (CompilerInterface) with Scala compiler version 2.10.4[0m
+[0m[[0mdebug[0m] [0mCalling Scala compiler with arguments  (CompilerInterface):[0m
+[0m[[0mdebug[0m] [0m	-bootclasspath[0m
+[0m[[0mdebug[0m] [0m	C:\Program Files\Java\jdk1.8.0_60\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_60\jre\classes;C:\Users\KALYAN\.sbt\boot\scala-2.10.4\lib\scala-library.jar[0m
+[0m[[0mdebug[0m] [0m	-classpath[0m
+[0m[[0mdebug[0m] [0m	C:\Users\KALYAN\workspace\Facebook\target\scala-2.10\classes;C:\Users\KALYAN\.ivy2\cache\ch.qos.logback\logback-classic\jars\logback-classic-1.1.2.jar;C:\Users\KALYAN\.ivy2\cache\ch.qos.logback\logback-core\jars\logback-core-1.1.2.jar;C:\Users\KALYAN\.ivy2\cache\com.typesafe.scala-logging\scala-logging-slf4j_2.10\jars\scala-logging-slf4j_2.10-2.1.2.jar;C:\Users\KALYAN\.ivy2\cache\com.typesafe.scala-logging\scala-logging-api_2.10\jars\scala-logging-api_2.10-2.1.2.jar;C:\Users\KALYAN\.sbt\boot\scala-2.10.4\lib\scala-reflect.jar;C:\Users\KALYAN\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.7.7.jar;C:\Users\KALYAN\.ivy2\cache\com.typesafe.akka\akka-actor_2.10\jars\akka-actor_2.10-2.3.9.jar;C:\Users\KALYAN\.ivy2\cache\com.typesafe\config\bundles\config-1.2.1.jar;C:\Users\KALYAN\.ivy2\cache\com.typesafe.akka\akka-slf4j_2.10\jars\akka-slf4j_2.10-2.3.9.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-routing_2.10\bundles\spray-routing_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-http_2.10\bundles\spray-http_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-util_2.10\bundles\spray-util_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\org.parboiled\parboiled-scala_2.10\bundles\parboiled-scala_2.10-1.1.6.jar;C:\Users\KALYAN\.ivy2\cache\org.parboiled\parboiled-core\bundles\parboiled-core-1.1.6.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-httpx_2.10\bundles\spray-httpx_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\org.jvnet.mimepull\mimepull\jars\mimepull-1.9.4.jar;C:\Users\KALYAN\.ivy2\cache\com.chuusai\shapeless_2.10\jars\shapeless_2.10-1.2.4.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-client_2.10\bundles\spray-client_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-can_2.10\bundles\spray-can_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-io_2.10\bundles\spray-io_2.10-1.3.2.jar;C:\Users\KALYAN\.ivy2\cache\io.spray\spray-json_2.10\bundles\spray-json_2.10-1.3.1.jar;C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-jackson_2.10\jars\json4s-jackson_2.10-3.2.11.jar;C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-core_2.10\jars\json4s-core_2.10-3.2.11.jar;C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-ast_2.10\jars\json4s-ast_2.10-3.2.11.jar;C:\Users\KALYAN\.ivy2\cache\com.thoughtworks.paranamer\paranamer\jars\paranamer-2.6.jar;C:\Users\KALYAN\.ivy2\cache\org.scala-lang\scalap\jars\scalap-2.10.0.jar;C:\Users\KALYAN\.ivy2\cache\org.scala-lang\scala-compiler\jars\scala-compiler-2.10.0.jar;C:\Users\KALYAN\.ivy2\cache\com.fasterxml.jackson.core\jackson-databind\bundles\jackson-databind-2.3.1.jar;C:\Users\KALYAN\.ivy2\cache\com.fasterxml.jackson.core\jackson-annotations\bundles\jackson-annotations-2.3.0.jar;C:\Users\KALYAN\.ivy2\cache\com.fasterxml.jackson.core\jackson-core\bundles\jackson-core-2.3.1.jar[0m
+[0m[[0mdebug[0m] [0mScala compilation took 19.128465289 s[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	pimpRouteWithConcatenation, segmentStringToPathMatcher, routerSettings, actorRefFactory, context, string2NR, symbol2NR, self, stringExtractionPair2PathMatcher, valueMap2PathMatcher, serverActorSystem, stringOptionNameReceptacle2PathMatcher, regex2PathMatcher.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Comment.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, wait, $asInstanceOf, likesCount, equals, asInstanceOf, synchronized, $isInstanceOf, notifyAll, isInstanceOf, <init>, ==, clone, content, createdBy, creationDate, toString, !=, getClass, commentID, Comment, ne, likesList, eq, ##, finalize, hashCode.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala: Set(<init>, content, createdBy, creationDate, Comment)[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	fbSystem.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	UnitJsonFormat, listFormat, vectorFormat, RootJsObjectFormat, BooleanJsonFormat, setFormat, RootJsArrayFormat, JsValueFormat, LongJsonFormat, tuple1Format, indexedSeqFormat, optionFormat, linearSeqFormat, SymbolJsonFormat, tuple5Format, randomIDGenerator, tuple3Format, immLinearSeqFormat, tuple7Format, immSetFormat, eitherFormat, implicitPost, CharJsonFormat, BigDecimalJsonFormat, ShortJsonFormat, tuple6Format, StringJsonFormat, arrayFormat, implicitComment, immIterableFormat, ByteJsonFormat, tuple2Format, immIndexedSeqFormat, immSeqFormat, tuple4Format, FloatJsonFormat, iterableFormat, implicitPerson, IntJsonFormat, implicitPage, DoubleJsonFormat, mapFormat, seqFormat, BigIntJsonFormat.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mThe following member ref dependencies of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Common.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m	C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala[0m
+[0m[[0mdebug[0m] [0m	C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala[0m
+[0m[[0mdebug[0m] [0m	C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala source file has the following implicit definitions changed:[0m
+[0m[[0mdebug[0m] [0m	self, context, system.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mThe following member ref dependencies of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Client.scala are invalidated:[0m
+[0m[[0mdebug[0m] [0m	C:\Users\KALYAN\workspace\Facebook\src\main\scala\Simulator.scala[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Post.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, createdTo, wait, $asInstanceOf, location, equals, asInstanceOf, synchronized, $isInstanceOf, notifyAll, isInstanceOf, likes, postID, <init>, shares, ==, Post, clone, content, createdBy, creationDate, toString, !=, getClass, ne, eq, ##, finalize, hashCode, comments.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala: Set(<init>, Post, createdBy, creationDate)[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala: Set(createdTo, location, equals, asInstanceOf, isInstanceOf, postID, <init>, Post, content, createdBy, creationDate, toString, ne)[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala: Set(<init>, Post, creationDate)[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\Page.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, name, wait, $asInstanceOf, posts, equals, description, asInstanceOf, pageID, synchronized, $isInstanceOf, notifyAll, isInstanceOf, Page, <init>, ==, clone, createdBy, creationDate, toString, !=, getClass, ne, likesList, eq, ##, finalize, hashCode.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala: Set(name, posts, equals, description, asInstanceOf, pageID, isInstanceOf, Page, <init>, createdBy, creationDate, toString, ne)[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala: Set(posts, Page, <init>, creationDate)[0m
+[0m[[0mdebug[0m] [0mInvalidating C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala...[0m
+[0m[[0mdebug[0m] [0mInvalidating (transitively) by inheritance from C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala...[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala)[0m
+[0m[[0mdebug[0m] [0mInvalidated by transitive inheritance dependency: Set(C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala)[0m
+[0m[[0mdebug[0m] [0mThe C:\Users\KALYAN\workspace\Facebook\src\main\scala\Nodes\User.scala source file has the following regular definitions changed:[0m
+[0m[[0mdebug[0m] [0m	notify, wait, $asInstanceOf, posts, email, equals, asInstanceOf, synchronized, $isInstanceOf, pages, dateOfBirth, notifyAll, isInstanceOf, lastName, firstName, <init>, pendingRequests, friends, ==, clone, creationDate, User, toString, !=, getClass, ne, userID, eq, ##, finalize, hashCode.[0m
+[0m[[0mdebug[0m] [0mAll member reference dependencies will be considered within this context.[0m
+[0m[[0mdebug[0m] [0mThe following modified names cause invalidation of C:\Users\KALYAN\workspace\Facebook\src\main\scala\Server.scala: Set(posts, email, equals, asInstanceOf, dateOfBirth, isInstanceOf, lastName, firstName, <init>, pendingRequests, friends, creationDate, User, toString, ne, userID)[0m
+[0m[[0mdebug[0m] [0mNew invalidations:[0m
+[0m[[0mdebug[0m] [0m	Set()[0m
+[0m[[0mdebug[0m] [0mInitial set of included nodes: Set()[0m
+[0m[[0mdebug[0m] [0mPreviously invalidated, but (transitively) depend on new invalidations:[0m
+[0m[[0mdebug[0m] [0m	Set()[0m
+[0m[[0mdebug[0m] [0mAll newly invalidated sources after taking into account (previously) recompiled sources:Set()[0m

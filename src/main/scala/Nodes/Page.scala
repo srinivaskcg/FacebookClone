@@ -1,14 +1,17 @@
 package Nodes
 
 import scala.collection.immutable.HashMap
+import scala.collection.mutable.MutableList
 
 class Page {
 
   var pageID: String = new String()
-  var name: String = new String()
-  var createdBy: String = new String()
-  var creationDate: String = new String()
+  var pageName: String = new String()
+  var pageCreatedBy: String = new String()
+
+  var pageCreationDate: String = new String()
   var description: String = new String()
-  var likesList: HashMap[String, String] = new HashMap[String, String]()
-  var posts: HashMap[Long, Post] = new HashMap[Long, Post]()
+
+  var likes = new MutableList[String]()
+  var posts = new HashMap[Long, Post]()
 }
