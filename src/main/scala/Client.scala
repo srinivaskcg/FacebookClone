@@ -14,6 +14,7 @@ import scala.concurrent.Future
 
 import Nodes._
 import Common._
+import spray.json._
 
 object Client {
 
@@ -29,7 +30,9 @@ object Client {
     def receive = {
 
       case createUser(newUser: caseUser) =>
-        val reqUrl = "url" + "registerUser"
+        val reqUrl = url + "registerUser"
+        println(reqUrl)
+        //println("In client"+newUser)
         val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newUser))
         responseFuture.onComplete {
           case Success(httpResponse) => {
@@ -45,7 +48,7 @@ object Client {
           }
         }
 
-      case updateUser(userID: Long, newUser: caseUser) =>
+      /*  case updateUser(userID: Long, newUser: caseUser) =>
         val reqUrl = "url" + "registerUser"
         val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newUser))
         responseFuture.onComplete {
@@ -77,7 +80,7 @@ object Client {
             println("User registration failed")
             println(f.getMessage)
           }
-        }
+        }*/
 
       case getUserInfo(userId: String) =>
         val reqUrl = url + userId + "/userInfo"
@@ -96,9 +99,10 @@ object Client {
           }
         }
 
-      case sendFriendRequest(toUserID: String) => {
+      case sendFriendRequest(fromUserID: String, toUserID: String) => {
 
-        val reqUrl = url + userName + "/" + toUserID + "/friendRequest"
+        val reqUrl = url + fromUserID + "/" + toUserID + "/friendRequest"
+
         val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl))
         responseFuture.onComplete {
           case Success(httpResponse) => {
@@ -109,15 +113,15 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Friend Request to " + toUserID + " from " + userName + " failed with error message")
+            println("Friend Request to " + toUserID + " from " + fromUserID + " failed with error message")
             println(f.getMessage)
           }
         }
       }
 
-      case manageFriendRequest(fromUserID: String, action: String) => {
+      case manageFriendRequest(fromUserID: String, toUserID: String, action: String) => {
 
-        val reqUrl = url + userName + "/" + fromUserID + "/handleRequest"
+        val reqUrl = url + toUserID + "/" + fromUserID + "/handleRequest"
         val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl).withEntity(action))
         responseFuture.onComplete {
 
@@ -135,7 +139,7 @@ object Client {
         }
       }
 
-      case unFriend(fromUserID: String, action: String) => {
+      /*  case unFriend(fromUserID: String, action: String) => {
 
         val reqUrl = url + userName + "/" + fromUserID + "/handleRequest"
         val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl).withEntity(action))
@@ -153,31 +157,15 @@ object Client {
             println(f.getMessage)
           }
         }
-      }
+      }*/
 
       //Post related functionality
 
-      case getUserPosts(ofUser: String) => {
-        val getPostsOfUserFuture: Future[HttpResponse] = pipeline(Get(url + userName + "/" + ofUser + "/posts"))
-        getPostsOfUserFuture.onComplete {
-          case Success(httpResponse) => {
-            if (httpResponse.status.isSuccess) {
-              println("\n " + httpResponse.entity.asString)
-            } else {
-              println(httpResponse.entity.asString)
-            }
-          }
-          case Failure(f) => {
-            println("Retrieval of posts of user " + ofUser + " as requested by " + userName + " failed with error message")
-            println(f.getMessage)
-          }
-        }
-      }
+      case postOnOwnWall(newStatus: casePost) => {
+        val reqUrl = url + "postStatus"
 
-      case postOnWall(toUser: String, post: String, timeOfPost: String) => {
-        val newPostToUser = new casePost(0, post, timeOfPost).toJson
-        val sendPostToUserFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + toUser + "/post", newPostToUser.asJsObject))
-        sendPostToUserFuture.onComplete {
+        val postStatusFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newStatus))
+        postStatusFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
               println(httpResponse.entity.asString)
@@ -186,16 +174,36 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Post sent to user " + toUser + " by " + userName + " failed with error message")
+            println("Status update by " + newStatus.createdBy + " failed with error message")
             println(f.getMessage)
           }
         }
       }
 
-      case postOnOwnWall(toUser: String, post: String, timeOfPost: String) => {
-        val newPostToUser = new casePost(0, post, timeOfPost).toJson
-        val sendPostToUserFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + toUser + "/post", newPostToUser.asJsObject))
-        sendPostToUserFuture.onComplete {
+      case getUserPosts(userID: String) => {
+        val getUserPostsFuture: Future[HttpResponse] = pipeline(Get(url + userID + "/posts"))
+        getUserPostsFuture.onComplete {
+          case Success(httpResponse) => {
+            println(httpResponse)
+            println(httpResponse.status)
+            if (httpResponse.status.isSuccess) {
+              println("1" + httpResponse.entity.asString)
+            } else {
+              println("2" + httpResponse.entity.asString)
+            }
+          }
+          case Failure(f) => {
+            println("Failed to retrieve posts for user: " + userID)
+            println(f.getMessage)
+          }
+        }
+      }
+
+      case postOnWall(newStatus: casePost) => {
+        val reqUrl = url + "postOnWall"
+
+        val postOnWallFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newStatus))
+        postOnWallFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
               println(httpResponse.entity.asString)
@@ -204,13 +212,13 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Post sent to user " + toUser + " by " + userName + " failed with error message")
+            println("post On " + newStatus.createdBy + " wall by " + newStatus.createdTo + "failed with error message")
             println(f.getMessage)
           }
         }
       }
 
-      case updatePost(toUser: String, post: String, timeOfPost: String) => {
+      /*  case updatePost(toUser: String, post: String, timeOfPost: String) => {
         val newPostToUser = new casePost(0, post, timeOfPost).toJson
         val sendPostToUserFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + toUser + "/post", newPostToUser.asJsObject))
         sendPostToUserFuture.onComplete {
@@ -313,13 +321,16 @@ object Client {
             println(f.getMessage)
           }
         }
-      }
+      }*/
 
       // Page related functionality
 
-      case createPage(pageId: String, caseNewPage: casePage) =>
-        val createNewPageFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + pageId, caseNewPage))
-        createNewPageFuture.onComplete {
+      case createPage(newPage: casePage) =>
+        val reqUrl = url + "createPage"
+        println(reqUrl)
+        //println("In client"+newUser)
+        val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newPage))
+        responseFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
               println(httpResponse.entity.asString)
@@ -328,12 +339,30 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Create new Page " + pageId + " failed with error message")
+            println("Page creation failed")
             println(f.getMessage)
           }
         }
 
-      case likePage(pageId: String, caseNewPage: casePage) =>
+      case createPagePost(pageId: String, casePagePost: casePost) =>
+
+        val reqUrl = url + pageId + "/pagePost"
+        val pagePostFuture: Future[HttpResponse] = pipeline(Post(reqUrl, casePagePost))
+        pagePostFuture.onComplete {
+          case Success(httpResponse) => {
+            if (httpResponse.status.isSuccess) {
+              println(httpResponse.entity.asString)
+            } else {
+              println(httpResponse.entity.asString)
+            }
+          }
+          case Failure(f) => {
+            println("Post of " + userName + " on the page failed with error message")
+            println(f.getMessage)
+          }
+        }
+
+      /*case likePage(pageId: String, caseNewPage: casePage) =>
         val createNewPageFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + pageId, caseNewPage))
         createNewPageFuture.onComplete {
           case Success(httpResponse) => {
@@ -381,22 +410,6 @@ object Client {
           }
         }
 
-      case postOnPage(pageId: Int, casePostOnPage: casePost) =>
-        val postOnPageFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + pageId + "/postOnPage", casePostOnPage))
-        postOnPageFuture.onComplete {
-          case Success(httpResponse) => {
-            if (httpResponse.status.isSuccess) {
-              println(httpResponse.entity.asString)
-            } else {
-              println(httpResponse.entity.asString)
-            }
-          }
-          case Failure(f) => {
-            println("Post of " + userName + " on the page failed with error message")
-            println(f.getMessage)
-          }
-        }
-
       case commentOnPagePost(pageId: Int, nodeId: Int, nodeType: String, caseCommentOnPage: caseComment) =>
         val postOnPageFuture: Future[HttpResponse] = pipeline(Post(url + userName + "/" + pageId + "/" + nodeId + "/" + nodeType, caseCommentOnPage))
         postOnPageFuture.onComplete {
@@ -411,7 +424,7 @@ object Client {
             println("Post of " + userName + " on the page failed with error message")
             println(f.getMessage)
           }
-        }
+        }*/
 
     }
   }
