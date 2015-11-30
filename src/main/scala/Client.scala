@@ -11,11 +11,13 @@ import spray.http._
 import org.json4s.jackson.JsonMethods._
 
 import org.json4s.jackson.Serialization
-import org.json4s.jackson.Serialization.{read,write}
-
+import org.json4s.jackson.Serialization.{ read, write }
 
 import scala.util.{ Success, Failure }
 import scala.concurrent.Future
+import scala.util.Random
+
+import scala.collection.immutable.HashMap
 
 import org.json4s._
 
@@ -25,72 +27,40 @@ import spray.json._
 
 object Client {
 
+  implicit val system = ActorSystem()
+  import system.dispatcher
+  implicit val formats = Serialization.formats(NoTypeHints)
+
+  var url: String = "http://localhost:8082"
+
+  val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
+
   class User extends Actor {
-    implicit val system = ActorSystem()
-    import system.dispatcher
-    implicit val formats = Serialization.formats(NoTypeHints)
 
-    var userName: String = new String()
-    var url: String = "http://localhost:8082/"
-
-    val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
+    var user: String = new String()
 
     def receive = {
 
-      case createUser(newUser: caseUser) =>
-        val reqUrl = url + "registerUser"
-        println(reqUrl)
-        //println("In client"+newUser)
-        val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newUser))
-        responseFuture.onComplete {
+      case registerUser(newUser: caseUser) =>
+        val reqUrl = url + "/registerUser"
+        val registerUserFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newUser))
+        registerUserFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
-              println(httpResponse.entity.asString)
+              println(newUser.firstName + " registered successfully !!!")
+              println(newUser.createdBy)
+              user = newUser.createdBy
             } else {
               println(httpResponse.entity.asString)
             }
           }
-          case Failure(f) => {
-            println("User registration failed")
-            println(f.getMessage)
+          case Failure(fail) => {
+            println("Registration failed for user with userId: " + newUser.createdBy)
+            println(fail.getMessage)
           }
         }
 
-      /*  case updateUser(userID: Long, newUser: caseUser) =>
-        val reqUrl = "url" + "registerUser"
-        val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newUser))
-        responseFuture.onComplete {
-          case Success(httpResponse) => {
-            if (httpResponse.status.isSuccess) {
-              println(httpResponse.entity.asString)
-            } else {
-              println(httpResponse.entity.asString)
-            }
-          }
-          case Failure(f) => {
-            println("User registration failed")
-            println(f.getMessage)
-          }
-        }
-
-      case deleteUser(userID: Long) =>
-        val reqUrl = "url" + "registerUser"
-        val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl))
-        responseFuture.onComplete {
-          case Success(httpResponse) => {
-            if (httpResponse.status.isSuccess) {
-              println(httpResponse.entity.asString)
-            } else {
-              println(httpResponse.entity.asString)
-            }
-          }
-          case Failure(f) => {
-            println("User registration failed")
-            println(f.getMessage)
-          }
-        }*/
-
-      case getUserInfo(userId: String) =>
+      /*case getUserInfo(userId: String) =>
         val reqUrl = url + userId + "/userInfo"
         val responseFuture: Future[HttpResponse] = pipeline(Get(reqUrl))
         responseFuture.onComplete {
@@ -105,43 +75,46 @@ object Client {
             println("User fetch failed")
             println(f.getMessage)
           }
-        }
+        }*/
 
-      case sendFriendRequest(fromUserID: String, toUserID: String) => {
+      case sendFriendRequest(toUser: String) => {
 
-        val reqUrl = url + fromUserID + "/" + toUserID + "/friendRequest"
+        val reqUrl = url + "/" + user + "/" + toUser + "/sendRequest"
+        println(reqUrl)
 
-        val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl))
-        responseFuture.onComplete {
+        val sendRequestFuture: Future[HttpResponse] = pipeline(Post(reqUrl))
+        sendRequestFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
-              println("\n " + httpResponse.entity.asString)
+              println("Friend request sent successfully to " + httpResponse.entity.asString)
             } else {
               println(httpResponse.entity.asString)
             }
           }
-          case Failure(f) => {
-            println("Friend Request to " + toUserID + " from " + fromUserID + " failed with error message")
-            println(f.getMessage)
+          case Failure(fail) => {
+            println("Friend request sent to " + toUser + " failed.")
+            println(fail.getMessage)
           }
         }
       }
 
-      case manageFriendRequest(fromUserID: String, toUserID: String, action: String) => {
+      case manageFriendRequest(ofUser: String, action: String) => {
 
-        val reqUrl = url + toUserID + "/" + fromUserID + "/handleRequest"
-        val responseFuture: Future[HttpResponse] = pipeline(Post(reqUrl).withEntity(action))
-        responseFuture.onComplete {
+        val reqUrl = url + "/" + user + "/" + ofUser + "/manageRequest"
+        println(reqUrl)
+
+        val manageRequestFuture: Future[HttpResponse] = pipeline(Post(reqUrl).withEntity(action))
+        manageRequestFuture.onComplete {
 
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
-              println(httpResponse.entity.asString)
+              println("Friend request from " + ofUser + " was accepted by " + user)
             } else {
               println(httpResponse.entity.asString)
             }
           }
           case Failure(f) => {
-            println("Failed to process Friend Request of " + fromUserID + " by " + userName + ". Failed with error message")
+            println(user + " failed to accept friend request from " + ofUser)
             println(f.getMessage)
           }
         }
@@ -170,8 +143,9 @@ object Client {
       //Post related functionality
 
       case postOnOwnWall(newStatus: casePost) => {
-        val reqUrl = url + "postStatus"
+        val reqUrl = url + "/" + user + "/" + user + "/" + "postStatus"
 
+        print(reqUrl)
         val postStatusFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newStatus))
         postStatusFuture.onComplete {
           case Success(httpResponse) => {
@@ -182,36 +156,34 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Status update by " + newStatus.createdBy + " failed with error message")
+            println("Status update by " + user + " failed with error message")
             println(f.getMessage)
           }
         }
       }
 
-      case getUserPosts(userID: String) => {
-        val getUserPostsFuture: Future[HttpResponse] = pipeline(Get(url + userID + "/posts"))
+      case getUserPosts(ofUser: String) => {
+        val getUserPostsFuture: Future[HttpResponse] = pipeline(Get(url + "/" + ofUser + "/posts"))
         getUserPostsFuture.onComplete {
           case Success(httpResponse) => {
-            println(httpResponse)
-            println(httpResponse.status)
             if (httpResponse.status.isSuccess) {
-              println("1" + httpResponse.entity.asString)
-              val data = parse(httpResponse.entity.asString).extract[List[Long]]
-              println(data.getClass)
+              val data = parse(httpResponse.entity.asString).extract[List[String]]
+              print(data)
             } else {
-              println("2" + httpResponse.entity.asString)
+              println(httpResponse.entity.asString)
             }
           }
           case Failure(f) => {
-            println("Failed to retrieve posts for user: " + userID)
+            println("Failed to retrieve posts for user: " + ofUser)
             println(f.getMessage)
           }
         }
       }
 
       case postOnWall(newStatus: casePost) => {
-        val reqUrl = url + "postOnWall"
+        val reqUrl = url + "/" + user + "/" + newStatus.sentTo + "/" +"postOnWall"
 
+        print(reqUrl)
         val postOnWallFuture: Future[HttpResponse] = pipeline(Post(reqUrl, newStatus))
         postOnWallFuture.onComplete {
           case Success(httpResponse) => {
@@ -222,7 +194,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("post On " + newStatus.createdBy + " wall by " + newStatus.createdTo + "failed with error message")
+            println("post On " + user + " wall by " + user + "failed with error message")
             println(f.getMessage)
           }
         }
@@ -282,18 +254,38 @@ object Client {
         }
       }*/
 
-      case commentOnPost(newCaseComment: caseComment) => {
-        
-        val reqUrl = url + "commentOnPost"
-        
-        val postCommentFuture: Future[HttpResponse] = pipeline(Post(reqUrl,newCaseComment))
-        postCommentFuture.onComplete {
+      case commentOnPost(onUser: String, newCaseComment: caseComment) => {
+
+        val getUserPostsFuture: Future[HttpResponse] = pipeline(Get(url + onUser + "/posts"))
+
+        getUserPostsFuture.onComplete {
           case Success(httpResponse) => {
             if (httpResponse.status.isSuccess) {
               println(httpResponse.entity.asString)
+              val data = parse(httpResponse.entity.asString).extract[List[Long]]
+
+              if (data.length > 0) {
+                val random = new Random
+                val randPost = data(random.nextInt(data.length))
+
+                val getPostFuture: Future[HttpResponse] = pipeline(Get(url + "/createComment/" + randPost, newCaseComment))
+                getUserPostsFuture.onComplete {
+                  case Success(httpResponse) => {
+                    if (httpResponse.status.isSuccess) {
+                      val commentId = parse(httpResponse.entity.asString).extract[String]
+                      println("Comment with " + commentId + " created")
+                    }
+                  }
+                  case Failure(f) => {
+                    println("Comment failed with error message")
+                    println(f.getMessage)
+                  }
+                }
+              }
             } else {
               println(httpResponse.entity.asString)
             }
+
           }
           case Failure(f) => {
             println("Comment failed with error message")
@@ -301,8 +293,8 @@ object Client {
           }
         }
       }
-      
-/*
+
+      /*
       case getPostComments(ofUser: String) => {
         val getPostsOfUserFuture: Future[HttpResponse] = pipeline(Get(url + userName + "/" + ofUser + "/posts"))
         getPostsOfUserFuture.onComplete {
@@ -371,7 +363,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Post of " + userName + " on the page failed with error message")
+            println("Post of on the page failed with error message")
             println(f.getMessage)
           }
         }

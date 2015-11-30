@@ -39,15 +39,8 @@ object Project4 extends App {
 
   var userDB: Map[String, User] = new HashMap[String, User]()
   var pageDB: Map[String, Page] = new HashMap[String, Page]()
-
-  var userIDMap: Map[String, String] = new HashMap[String, String]()
-  
-   val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
-   val postActor = serverActorSystem.actorOf(Props(new PostActor()), "postActor")
-   val pageActor = serverActorSystem.actorOf(Props(new PageActor()), "pageActor")
-   val commentActor = serverActorSystem.actorOf(Props(new CommentActor()), "commentActor")
-
-  class Server extends Actor with userTrait with postTrait with pageTrait //with commentTrait 
+ 
+  class Server extends Actor with userTrait with postTrait //with pageTrait with commentTrait 
   {
 
     def actorRefFactory = context
@@ -55,7 +48,8 @@ object Project4 extends App {
 
     def receive = runRoute(receivePathUser
       ~ receivePathPost
-      ~ receivePathPage //~ receivePathComment
+     // ~ receivePathPage 
+     // ~ receivePathComment
       )
   }
 
@@ -65,48 +59,33 @@ object Project4 extends App {
     val receivePathUser = {
       path("registerUser") {
         entity(as[caseUser]) { newUserInfo =>
-
-          var newUser: User = new User()
-
-          //println("Before user creation"+ newUserInfo)
-          newUser.userID = newUserInfo.createdBy //uniqueCurrentTimeMS()+""
-          //println(newUser.userID)
-          newUser.creationDate = newUserInfo.creationDate
-          newUser.firstName = newUserInfo.firstName
-          newUser.lastName = newUserInfo.lastName
-          newUser.dateOfBirth = newUserInfo.dateOfBirth
-          newUser.email = newUserInfo.email
-
-          userDB.+=(newUser.userID -> newUser)
-
-          //userIDMap .+= (newUser.firstName -> newUser.userID)
-
-          //println("Stored in Map!!!!"+userIDMap(newUser.firstName)+"--------"+newUser.firstName)
-
-          complete("Registered New User")
+          requestContext =>
+            val userActor = serverActorSystem.actorOf(Props(new UserActor()))
+            userActor ! serverRegisterUser(requestContext, newUserInfo)
+            userActor ! PoisonPill
         }
       } ~ get {
         path(Segment / "userInfo") { (ofUser) =>
-          println(ofUser)
-          //val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
+          println("User Info")
           requestContext =>
+            val userActor = serverActorSystem.actorOf(Props(new UserActor()))
             userActor ! serverGetUserInfo(requestContext, ofUser)
-            //userActor ! PoisonPill
+            userActor ! PoisonPill
         }
       } ~ post {
-        path(Segment / Segment / "friendRequest") { (sender, receiver) =>
+        path(Segment / Segment / "sendRequest") { (sender, receiver) =>
           println("friend Request")
-          //val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
           requestContext =>
+            val userActor = serverActorSystem.actorOf(Props(new UserActor()))
             userActor ! serverSendFriendRequest(requestContext, sender, receiver)
-            //userActor ! PoisonPill
+            userActor ! PoisonPill
         } ~
-          path(Segment / Segment / "handleRequest") { (sender, receiver) =>
-           // val userActor = serverActorSystem.actorOf(Props(new UserActor()), "userActor")
+          path(Segment / Segment / "manageRequest") { (sender, receiver) =>
             entity(as[String]) { action =>
               requestContext =>
+                val userActor = serverActorSystem.actorOf(Props(new UserActor()))
                 userActor ! serverManageFriendRequest(requestContext, sender, receiver, action)
-             //   userActor ! PoisonPill
+                userActor ! PoisonPill
             }
           }
       }/* ~ delete {
@@ -124,61 +103,52 @@ object Project4 extends App {
 
     def receive = {
 
-      case serverGetUserInfo(reqContext: RequestContext, tempUserID: String) =>
-        println(tempUserID)
-        //println(userIDMap(ofUser))
-        //var tempUserID = userIDMap(ofUser)
+      case serverRegisterUser(requestContext: RequestContext, newUserInfo: caseUser) =>
+
+        var newUser: User = new User()
+        
+        newUser.userID = newUserInfo.createdBy
+        newUser.creationDate = newUserInfo.creationDate
+        newUser.firstName = newUserInfo.firstName
+        newUser.lastName = newUserInfo.lastName
+        newUser.gender = newUserInfo.gender
+        newUser.dateOfBirth = newUserInfo.dateOfBirth
+        newUser.email = newUserInfo.email
+        
+        userDB.+=(newUser.userID -> newUser)
+        
+        requestContext.complete(newUser.userID)
+
+      /*case serverGetUserInfo(reqContext: RequestContext, tempUserID: String) =>
         var returnCU = new caseUser(userDB.get(tempUserID).get.userID, userDB.get(tempUserID).get.creationDate,
           userDB.get(tempUserID).get.firstName, userDB.get(tempUserID).get.lastName,
           userDB.get(tempUserID).get.dateOfBirth, userDB.get(tempUserID).get.email)
-        //println(returnCU)
         var returnCaseUser = returnCU.toJson
-        println(returnCaseUser)
-        reqContext.complete(returnCaseUser.toString())
+        reqContext.complete(returnCaseUser.toString())*/
 
-      case serverSendFriendRequest(reqContext: RequestContext, senderUserID: String, receiverUserID: String) =>
-        println("friend Request case")
-        //var receiverUserID = userIDMap(receiverID)
-        //var senderUserID = userIDMap(senderID)
-
-        if (receiverUserID.equals(senderUserID)) {
-          println("If")
-          reqContext.complete("User request sent to self")
-        } else if (userDB.get(receiverUserID).get.pendingRequests.contains(senderUserID)) {
-          println("else if")
-          reqContext.complete(receiverUserID + " already has a pending friend request from " + senderUserID)
+      case serverSendFriendRequest(requestContext: RequestContext, sender: String, receiver: String) =>
+        if (userDB.get(receiver).get.pendingRequests.contains(sender)) {
+          requestContext.complete(sender + " has already sent a friend request to  " + receiver)
         } else {
-          println("else")
-          userDB.get(receiverUserID).get.pendingRequests += (senderUserID -> senderUserID)
-          println("Pending friend list of " + senderUserID + " = " + userDB.get(receiverUserID).get.pendingRequests)
-          reqContext.complete("Friend Request from " + senderUserID + " from " + receiverUserID + " sent successfully\n" +
-            "Pending friend List of " + receiverUserID + " now is " + userDB.get(receiverUserID).get.pendingRequests)
+          userDB.get(receiver).get.pendingRequests += (sender -> sender)
+          requestContext.complete(receiver)
         }
 
-      case serverManageFriendRequest(reqContext: RequestContext, senderUserID: String, receiverUserID: String, action: String) =>
+      case serverManageFriendRequest(requestContext: RequestContext, receiver: String, sender: String, action: String) =>
 
-        //var receiverUserID = userIDMap(receiverID)
-        //var senderUserID = userIDMap(senderID)
-
-        println("processing friend request of " + senderUserID + " by user " + receiverUserID)
-        println("pendingList of " + receiverUserID + " before processing of the response= " + userDB.get(receiverUserID).get.pendingRequests)
-        var pendingList = userDB.get(receiverUserID).get.pendingRequests
-        if (pendingList.contains(senderUserID)) {
-          if (action.equalsIgnoreCase("Accept")) {
-            userDB.get(receiverUserID).get.friends += (pendingList.get(senderUserID).get -> pendingList.get(senderUserID).get)
-            userDB.get(receiverUserID).get.pendingRequests -= (senderUserID)
-            reqContext.complete(receiverUserID + "accepted the friend request of " + senderUserID)
-            println("Friend List of user " + receiverUserID + "= " + userDB(receiverUserID).friends)
-            println("Pending Friend List of user " + receiverUserID + "= " + userDB.get(receiverUserID).get.pendingRequests)
-          } else if (action.equalsIgnoreCase("Reject")) {
-            userDB.get(receiverUserID).get.pendingRequests.-=("ofUser")
-            reqContext.complete(receiverUserID + " rejected the friend request of " + receiverUserID)
-          }
+        var pendingReq = userDB.get(receiver).get.pendingRequests
+        if (pendingReq.contains(sender)) {
+          println("Inside if")
+            userDB.get(receiver).get.friends += (pendingReq.get(sender).get -> pendingReq.get(sender).get)
+            
+            userDB.get(receiver).get.pendingRequests -= (sender)
+            
+            requestContext.complete("Request accepted")
+            
         } else {
-          if (userDB.get(receiverUserID).get.friends.contains(senderUserID)) {
-            reqContext.complete(senderUserID + " is already a friend of " + receiverUserID)
-          } else {
-            reqContext.complete(senderUserID + " is already a friend of " + receiverUserID)
+          println("Inside else")
+          if (userDB.get(receiver).get.friends.contains(sender)) {
+            requestContext.complete(sender + " is already a friend of " + receiver)
           }
         }
     }
@@ -188,61 +158,48 @@ object Project4 extends App {
     import spray.httpx.SprayJsonSupport._
 
     val receivePathPost = {
-      path("postStatus") {
+      path(Segment / Segment / "postStatus") { (sender, receiver) =>
         entity(as[casePost]) { newCasePost =>
 
           var newPost: Post = new Post()
 
           newPost.postID = uniqueCurrentTimeMS()
-          newPost.createdBy = newCasePost.createdBy
-          newPost.createdTo = newCasePost.createdTo
+          newPost.createdBy = sender
           newPost.creationDate = newCasePost.creationDate
           newPost.content = newCasePost.content
           newPost.location = newCasePost.location
 
-          //if(userIDMap.contains(newPost.createdBy)){
-          //var tempUserId = userIDMap.get(newPost.createdBy)
-          userDB.get(newPost.createdBy).get.posts += (newPost.postID -> newPost)
-          //}
+          userDB(newPost.createdBy).status += (newPost.postID -> newPost)
+          println(newPost.postID)
 
           complete("Created Status")
         }
-      } ~ path("postOnWall") {
+      } ~ path(Segment / Segment / "postOnWall") { (sender, receiver) => 
         entity(as[casePost]) { newCasePost =>
 
           var newPost: Post = new Post()
 
           newPost.postID = uniqueCurrentTimeMS()
-          newPost.createdBy = newCasePost.createdBy
-          newPost.createdTo = newCasePost.createdTo
+          newPost.createdBy = sender
+          newPost.createdTo = receiver
           newPost.creationDate = newCasePost.creationDate
           newPost.content = newCasePost.content
           newPost.location = newCasePost.location
 
-          userDB.get(newPost.createdTo).get.posts += (newPost.postID -> newPost)
+          userDB(newPost.createdTo).posts += (newPost.postID -> newPost)
+          println(newPost.postID)
 
           complete("Posted on wall")
         }
       } ~ get {
         path(Segment / "posts") { ofUser =>
           println("getting posts for" + ofUser)
-          
-        //  val postActor = serverActorSystem.actorOf(Props(new PostActor()), "postActor")
           requestContext =>
+            val postActor = serverActorSystem.actorOf(Props(new PostActor()))
             postActor ! serverGetUserPosts(requestContext, ofUser)
-          //  postActor ! PoisonPill
+            postActor ! PoisonPill
         }
-      } /*~ post {
-          path(IntNumber / IntNumber / "updatePost") { (sentUser, reqUser) =>
-            requestContext =>
-              postActor ! updatePost(requestContext, sentUser, reqUser)
-          }
-        } ~ delete {
-          path(IntNumber / "deletePost") { ofUser =>
-            requestContext =>
-              postActor ! deletePost(requestContext, ofUser)
-          }
-        }*/
+      }
     }
   }
 
@@ -252,25 +209,17 @@ object Project4 extends App {
 
       case serverGetUserPosts(requestContext: RequestContext, ofUser: String) =>
         import spray.httpx.SprayJsonSupport._
-
-        println("getting posts for in function" + ofUser)
         var postMap: Map[Long, Post] = userDB(ofUser).posts
-        println("got posts")
         var returnPostMap: Map[Long, casePost] = new HashMap[Long, casePost]
 
         for ((k, v) <- postMap) {
-          println("Inside kv")
-          var varCP = new casePost(v.createdBy, v.createdTo, v.creationDate, v.content, v.location)
+          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location)
           returnPostMap += (k -> varCP)
-          println("Set kv")
         }
-        println(" end of loop" + returnPostMap)
-        //var retPostMap = returnPostMap.toJson
-        //println(retPostMap)
-        requestContext.complete(returnPostMap.keys.toList)
+        requestContext.complete(returnPostMap.values.toList)
     }
   }
-
+/*
   trait pageTrait extends HttpService {
     import spray.httpx.SprayJsonSupport._
 
@@ -336,19 +285,22 @@ object Project4 extends App {
         }     
     }
   }
-  
+
   trait commentTrait extends HttpService {
     import spray.httpx.SprayJsonSupport._
 
     val receivePathComment = {
-      path("createComment") {
-          entity(as[caseComment]) { newCaseComment =>
-             requestContext =>
-            commentActor ! serverCommentOnPost(requestContext, newCaseComment)
-
-          }
+      path("createComment" / LongNumber) { postId =>
+        entity(as[caseComment]) { newCaseComment =>
+          requestContext =>
+            val commentActor = serverActorSystem.actorOf(Props(new CommentActor()))
+            println("Before commenting")
+            commentActor ! serverCommentOnPost(requestContext, postId, newCaseComment)
+            commentActor ! PoisonPill
         }
-      /* ~ get {
+      }
+    }
+     ~ get {
           path(IntNumber / "getComment") { ofUser =>
             requestContext =>
               commentActor ! getPostInfo(requestContext, ofUser)
@@ -364,26 +316,29 @@ object Project4 extends App {
               commentActor ! deleteComment(requestContext, ofUser)
           }
         }
-      }*/
-    }
+      }
   }
 
   class CommentActor() extends Actor {
 
     def receive = {
 
-      case serverCommentOnPost(reqContext: RequestContext, newCaseComment: caseComment) =>
+      case serverCommentOnPost(reqContext: RequestContext, postId: Long, newCaseComment: caseComment) =>
         println("serverCommentOnPost case")
-          
-          userDB(newCaseComment.userPageID).posts.get(newCaseComment.postID).comments += (newCaseComment.commentID -> newCaseComment)
 
-          
-          println("Pending friend list of " + senderUserID + " = " + userDB.get(receiverUserID).get.pendingRequests)
-          reqContext.complete("Friend Request from " + senderUserID + " from " + receiverUserID + " sent successfully\n" +
-            "Pending friend List of " + receiverUserID + " now is " + userDB.get(receiverUserID).get.pendingRequests)
-        
+        var newComment: Comment = new Comment()
+
+        newComment.commentID = uniqueCurrentTimeMS()
+        newComment.postID = postId
+        newComment.content = newCaseComment.content
+        newComment.creationDate = newCaseComment.creationDate
+        newComment.createdBy = newCaseComment.createdBy
+
+        userDB(newCaseComment.userPageID).posts(postId).comments += (newComment.commentID -> newComment)
+
+        reqContext.complete(newComment.commentID.toString())
     }
-  }
+  }*/
   
 }
 
