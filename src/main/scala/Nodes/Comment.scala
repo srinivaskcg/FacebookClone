@@ -1,7 +1,6 @@
 package Nodes
 
-import scala.collection.mutable.LinkedHashMap
-import java.util.HashMap
+import scala.collection.immutable.HashMap
 
 class Comment {
 
