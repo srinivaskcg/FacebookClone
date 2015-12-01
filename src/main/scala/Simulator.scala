@@ -1,7 +1,6 @@
 import akka.actor._
 import akka.actor.{ ActorSystem, Actor, Props, ActorRef }
 import akka.util.Timeout
-
 import spray.httpx.SprayJsonSupport
 import spray.json.AdditionalFormats
 import spray.json.{ JsonFormat, DefaultJsonProtocol }
@@ -12,14 +11,14 @@ import scala.util.{ Success, Failure }
 import scala.concurrent.Future
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration;
-import java.util.concurrent.TimeUnit;
+import scala.concurrent.duration.Duration
+import java.util.concurrent.TimeUnit
 import scala.collection.mutable.HashMap
-import java.util.Calendar;
-import java.util.Date;
-
+import java.util.Calendar
+import java.util.Date
 import Common._
 import Nodes._
+import shapeless.ToInt
 
 object Constants {
   var possibleGender: List[String] = List("Male", "Female")
@@ -32,7 +31,8 @@ object Simulation extends App {
 
   implicit val timeout = Timeout(Duration.create(5000, TimeUnit.MILLISECONDS))
 
-  var userCount: Int = 10
+  var userCount = args(0).toInt
+  var pageIndex = 0
 
   implicit val facebookUserSystem = ActorSystem()
 
@@ -51,19 +51,34 @@ object Simulation extends App {
     simActorMap.+=("userId" + actor -> UserActor)
   }
 
-  Thread.sleep(userCount * 10)
-  
-  facebookUserSystem.scheduler.schedule(
-    Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleFriendRequest)
+  Thread.sleep(userCount * 2)
 
   facebookUserSystem.scheduler.schedule(
-        Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdateStatus)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(scheduleFriendRequest)
+    
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(scheduleGetUserInfo)
 
   facebookUserSystem.scheduler.schedule(
-        Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdatePost)
-        
-  //facebookUserSystem.scheduler.schedule(
-    //    Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleGetUserPosts)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdateStatus)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdatePost)
+
+  facebookUserSystem.scheduler.schedule(
+      Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleGetUserPosts)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(schedulePostComments)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(schedulePageCreation)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(4000, TimeUnit.MILLISECONDS))(schedulePagePosts)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(4000, TimeUnit.MILLISECONDS))(schedulePageLikes)
 
   def scheduleFriendRequest() = {
 
@@ -79,47 +94,86 @@ object Simulation extends App {
     simActorMap(randomReceiver) ! manageFriendRequest(randomSender, Constants.action)
   }
   
-  def scheduleUpdateStatus() = { 
+  def scheduleGetUserInfo() = {
     var sender = getRandomUsers()._2._1
     var send = getRandomUsers()._1._1
-    
-    val newStatusPost: casePost = new casePost(send, Constants.today , "Status" + sender, "Gainesville")
+    sender ! getUserInfo(send)
+  }
+
+  def scheduleUpdateStatus() = {
+    var sender = getRandomUsers()._2._1
+    var send = getRandomUsers()._1._1
+
+    val newStatusPost: casePost = new casePost(send, Constants.today, "Status" + sender, "Gainesville")
     sender ! postOnOwnWall(newStatusPost)
   }
-  
-  def scheduleUpdatePost() = { 
+
+  def scheduleUpdatePost() = {
     var sender = getRandomUsers()._2._1
     var receive = getRandomUsers()._1._2
-    
-    val newWallPost: casePost = new casePost(receive, Constants.today , "Status" + sender, "Gainesville")
+
+    val newWallPost: casePost = new casePost(receive, Constants.today, "Status" + sender, "Gainesville")
     sender ! postOnWall(newWallPost)
   }
-  
-  def scheduleGetUserPosts()={
-    
+
+  def scheduleGetUserPosts() = {
+
     var randomVar = getRandomUsers()
     var sender = randomVar._2._1
     var receiver = randomVar._2._2
     var randomReceiver = randomVar._1._2
     var randomSender = randomVar._1._1
-      
+
     sender ! getUserPosts(randomReceiver)
   }
 
-  
-  /* for (act <- 0 to 10) {
-    println("get user info : " + act)
-    userActorArray(act) ! getUserInfo("user" + (act))
+  def schedulePostComments() = {
+    var randomVar = getRandomUsers()
+    var sender = randomVar._2._1
+    var receiver = randomVar._2._2
+    var randomReceiver = randomVar._1._2
+    var randomSender = randomVar._1._1
+
+    sender ! commentOnPost(randomReceiver)
   }
 
-  for (act <- 0 to 10) {
-    println("get post info : " + act)
-    userActorArray(act) ! getUserPosts("user" + (act))
+  def schedulePageCreation() = {
+
+    pageIndex = pageIndex + 1
+    var randomVar = getRandomUsers()
+
+    var actor = randomVar._2._1
+    var createdBy: String = randomVar._1._1
+
+    var casePage = new casePage(Constants.today, "page" + pageIndex, "page created by " + createdBy)
+
+    actor ! createPage(casePage)
   }
 
-  Thread.sleep(3000)
+  def schedulePagePosts() = {
+    var randomVar = getRandomUsers()
 
-  for (act <- 0 to 5) {
+    var actor = randomVar._2._1
+    var createdBy: String = randomVar._1._1
+
+    var randPageId: String = "page" + Random.nextInt(pageIndex)
+
+    val newPagePost: casePost = new casePost(createdBy, Constants.today, "PagePost", "Gainesville")
+
+    actor ! createPagePost(randPageId, newPagePost)
+  }
+
+  def schedulePageLikes() = {
+    var randomVar = getRandomUsers()
+    var actor = randomVar._2._1
+    var createdBy: String = randomVar._1._1
+
+    var randPageId: String = "page" + Random.nextInt(pageIndex)
+
+    actor ! likePage(randPageId, createdBy)
+  }
+
+  /*   for (act <- 0 to 5) {
     println("Create Page : "+act)
     val newCasePage: casePage = new casePage( "page" + act, "27112015" + act, "page name" + act, "page description " + act)
     userActorArray(act) ! createPage(newCasePage)

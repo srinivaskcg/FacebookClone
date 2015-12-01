@@ -4,10 +4,10 @@
 	<info
 		organisation="default"
 		module="facebook_2.10"
-		revision="0.1-SNAPSHOT"
+		revision="1.0"
 		conf="docs"
 		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool"
-		date="20151129231231"/>
+		date="20151130201830"/>
 	<dependencies>
 	</dependencies>
 </ivy-report>

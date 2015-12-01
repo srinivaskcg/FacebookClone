@@ -34,11 +34,11 @@ object Common {
 
   // case class caseProfile(profileID: BigInt, friends: Map[Int, BigInt], friendRequests: Map[Int, BigInt], posts: Map[Int, BigInt])
 
-  case class casePost(sentTo : String, creationDate: String, content: String, location: String)
+  case class casePost(sentTo: String, creationDate: String, content: String, location: String)
 
-  case class casePage(createdBy: String, creationDate: String, name: String, description: String)
+  case class casePage(creationDate: String, name: String, description: String)
 
-  case class caseComment(createdBy: String, creationDate: String, userPageID: String, content: String)
+  case class caseComment(createdOn: String, creationDate: String, userPageID: Long, content: String)
 
   object caseUser extends DefaultJsonProtocol {
     implicit val implicitPerson = jsonFormat7(caseUser.apply)
@@ -53,7 +53,7 @@ object Common {
   }
 
   object casePage extends DefaultJsonProtocol {
-    implicit val implicitPage = jsonFormat4(casePage.apply)
+    implicit val implicitPage = jsonFormat3(casePage.apply)
   }
 
   object caseComment extends DefaultJsonProtocol {
@@ -70,44 +70,30 @@ object Common {
   // Post Case Classes  
   case class postOnWall(newCasePost: casePost) //done
   case class postOnOwnWall(newCasePost: casePost) //done
-  case class commentOnPost(ofUser: String, newCaseComment: caseComment) //
-
+  case class commentOnPost(ofUser: String) //
   case class getUserPosts(ofUser: String) // done
 
   // Page Case Classes
   case class createPage(caseNewPage: casePage) //done
-
   case class createPagePost(pageId: String, casePagePost: casePost) //done
   case class commentOnPagePost(pageId: Int, nodeId: Int, nodeType: String, caseCommentOnPage: caseComment)
-
-  // If time permits
-  case class updateUser(userID: Long, newCaseUser: caseUser) //if time permits
-  case class deleteUser(userID: Long) //if time permits
-
-  case class unFriend(fromUserID: String, toUserID: String) //if time permits
-  case class updatePost(toUser: String, post: String, timeOfPost: String) //if time permits
-  case class deletePost(toUser: String, post: String, timeOfPost: String) //if time permits
-
-  case class likePost(toUser: String, post: String, timeOfPost: String) //if time permits
-
-  case class getPostComments(ofUser: String) //if time permits
-  case class likeComment(ofUser: String, postId: Int, comment: String) //if time permits
-
-  case class likePage(pageId: String, caseNewPage: casePage) //if time permits
-  case class unLikePage(pageId: String, caseNewPage: casePage) //if time permits
-  case class deletePage(pageId: String, caseNewPage: casePage) //if time permits
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  case class likePage(pageId: String, byUser: String) //if time permits
 
   case class serverRegisterUser(requestContext: RequestContext, newUserInfo: caseUser)
   case class serverGetUserInfo(reqContext: RequestContext, ofUser: String)
   case class serverSendFriendRequest(reqContext: RequestContext, byUser: String, toUser: String)
   case class serverManageFriendRequest(reqContext: RequestContext, byUser: String, toUser: String, action: String)
 
+  case class serverPostOnWall(requestContext: RequestContext, sender: String, receiver: String, newCasePost: casePost)
+  case class serverPostStatus(requestContext: RequestContext, sender: String, receiver: String, newCasePost: casePost)
   case class serverGetUserPosts(reqContext: RequestContext, ofUser: String)
+  case class serverGetUserPostIds(requestContext: RequestContext, ofUser: String)
   case class serverPagePost(reqContext: RequestContext, pageId: String, newCasePost: casePost)
+  case class serverCommentOnPost(reqContext: RequestContext, newCaseComment: caseComment) //
 
-  case class serverCommentOnPost(reqContext: RequestContext, postId: Long, newCaseComment: caseComment) //
+  case class serverCreatePagePost(requestContext: RequestContext, pageId: String, newCasePost: casePost)
+  case class serverCreatePage(requestContext: RequestContext, newCasePage: casePage)
+  case class serverLikepage(requestContext: RequestContext, pageId: String, byUser: String)
 
   // Generating a random BigInt and not present in the map
   implicit val randomIDGenerator = new SecureRandom()

@@ -9,3 +9,8 @@ eclipse
 update
 compile
 eclipse
+update
+reload
+eclipse
+run
+run 10000

@@ -1,0 +1,4 @@
+akka.logger-startup-timeout = "25s"
+akka.loglevel = "DEBUG"
+akka.stdout-loglevel = "DEBUG"
+spray.routing.verbose-error-messages = on
