@@ -51,13 +51,13 @@ object Simulation extends App {
     simActorMap.+=("userId" + actor -> UserActor)
   }
 
-  Thread.sleep(userCount * 2)
+  Thread.sleep(userCount * 1)
 
   facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(scheduleFriendRequest)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleFriendRequest)
     
   facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(scheduleGetUserInfo)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleGetUserInfo)
 
   facebookUserSystem.scheduler.schedule(
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdateStatus)
@@ -69,7 +69,7 @@ object Simulation extends App {
       Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleGetUserPosts)
 
   facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(schedulePostComments)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(1000, TimeUnit.MILLISECONDS))(schedulePostComments)
 
   facebookUserSystem.scheduler.schedule(
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(schedulePageCreation)
@@ -78,7 +78,7 @@ object Simulation extends App {
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(4000, TimeUnit.MILLISECONDS))(schedulePagePosts)
 
   facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(4000, TimeUnit.MILLISECONDS))(schedulePageLikes)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(schedulePageLikes)
 
   def scheduleFriendRequest() = {
 
@@ -173,30 +173,6 @@ object Simulation extends App {
     actor ! likePage(randPageId, createdBy)
   }
 
-  /*   for (act <- 0 to 5) {
-    println("Create Page : "+act)
-    val newCasePage: casePage = new casePage( "page" + act, "27112015" + act, "page name" + act, "page description " + act)
-    userActorArray(act) ! createPage(newCasePage)
-  }
-  
-  Thread.sleep(3000)
-  
-  for (act <- 0 to 5) {
-    println("Create Page Post: "+act)
-    val newCasePost: casePost = new casePost("user" + act, "user" +(act-1), "28112015" + act, "Page Post" + act, "Gainesville" + act)
-    userActorArray(act) ! createPagePost("page" + act, newCasePost)
-  }
-  
-   Thread.sleep(3000)
-
-  for (act <- 1 to 10) {
-    println("Comment on Post: " + act)
-    val newCaseComent: caseComment = new caseComment("user" + act, "28112015" + act, "user" + (act - 1), "comment" + act)
-    userActorArray(act) ! commentOnPost("user" + (act - 1), newCaseComent)
-  }
-
-  //fbSystem.shutdown()
-*/
   def getRandomUsers(): ((String, String), (ActorRef, ActorRef)) = {
     var randomSender = simActorMap.keys.toList(Random.nextInt(simActorMap.size))
     var requestSender: ActorRef = simActorMap(randomSender)

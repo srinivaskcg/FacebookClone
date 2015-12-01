@@ -8,15 +8,14 @@ import spray.json.AdditionalFormats
 import spray.json.{ JsonFormat, DefaultJsonProtocol }
 import spray.client.pipelining._
 import spray.http._
-import org.json4s.jackson.JsonMethods._
 
+import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{ read, write }
 
 import scala.util.{ Success, Failure }
 import scala.concurrent.Future
 import scala.util.Random
-
 import scala.collection.immutable.HashMap
 
 import org.json4s._
@@ -71,7 +70,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("User fetch failed")
+            println("Failed to fetch user details")
             println(f.getMessage)
           }
         }
@@ -112,7 +111,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println(user + " failed to accept friend request from " + ofUser)
+            println("Failed to accept friend request")
             println(f.getMessage)
           }
         }
@@ -133,7 +132,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Status update by " + user + " failed with error message")
+            println("Status update failed")
             println(f.getMessage)
           }
         }
@@ -197,18 +196,18 @@ object Client {
                     }
                   }
                   case Failure(f) => {
-                    println("Comment sent to user " + ofUser + "'s post by " + user + " failed with error message")
+                    println("Comment of " + ofUser + " failed")
                     println(f.getMessage)
                   }
                 }
               }
             } else {
-              println("Retrieval of posts of user " + ofUser + " as requested by " + user + " failed with error message")
+              println("Failed to retrieve posts for user: " + ofUser)
               println(httpResponse.entity.asString)
             }
           }
           case Failure(f) => {
-            println("Retrieval of posts of user " + ofUser + " as requested by " + user + " failed with error message")
+            println("Failed to retrieve posts for user: " + ofUser)
             println(f.getMessage)
           }
         }
@@ -246,7 +245,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Post of on the page failed with error message")
+            println("Failed to post on Page")
             println(f.getMessage)
           }
         }
@@ -264,7 +263,7 @@ object Client {
             }
           }
           case Failure(f) => {
-            println("Create new Page " + pageId + " failed with error message")
+            println("Failed to like the page")
             println(f.getMessage)
           }
         }

@@ -60,7 +60,7 @@ object Common {
     implicit val implicitComment = jsonFormat4(caseComment.apply)
   }
 
-  // User Case Classes
+  // Profile Case Classes
   case class registerUser(newCaseUser: caseUser) //done
   case class getUserInfo(userID: String) //done
 

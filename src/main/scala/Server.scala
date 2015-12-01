@@ -110,16 +110,16 @@ object Project4 extends App {
 
       case serverGetUserInfo(reqContext: RequestContext, tempUserID: String) =>
         
-        var returnCU = new caseUser(userDB(tempUserID).userID, userDB(tempUserID).creationDate,
+        var returnUser = new caseUser(userDB(tempUserID).userID, userDB(tempUserID).creationDate,
           userDB(tempUserID).firstName, userDB(tempUserID).lastName, userDB(tempUserID).gender,
           userDB(tempUserID).dateOfBirth, userDB(tempUserID).email)
         
-        var returnCaseUser = returnCU.toJson
+        var returnCaseUser = returnUser.toJson
         reqContext.complete(returnCaseUser.toString())
 
       case serverSendFriendRequest(requestContext: RequestContext, sender: String, receiver: String) =>
         if (userDB.get(receiver).get.pendingRequests.contains(sender)) {
-          requestContext.complete(sender + " has already sent a friend request to  " + receiver)
+          requestContext.complete(sender + " sent a friend request already to  " + receiver)
         } else {
           userDB.get(receiver).get.pendingRequests += (sender -> sender)
           requestContext.complete(receiver)
@@ -314,7 +314,7 @@ object Project4 extends App {
 
     def receive = {
 
-      case serverCommentOnPost(reqContext: RequestContext, newCaseComment: caseComment) =>
+      case serverCommentOnPost(requestContext: RequestContext, newCaseComment: caseComment) =>
 
         var newComment: Comment = new Comment()
 
@@ -325,7 +325,7 @@ object Project4 extends App {
         newComment.createdBy = newCaseComment.createdOn
 
         userDB(newComment.createdBy).posts(newComment.postID).comments += (newComment.commentID -> newComment)
-        reqContext.complete("Comment posted on " + newComment.postID)
+        requestContext.complete("Comment posted on " + newComment.postID)
     }
   }
 
