@@ -2,32 +2,27 @@ import akka.actor.{ ActorSystem, Actor, Props }
 import akka.actor._
 import akka.io.IO
 import akka.util.Timeout
-
 import spray.json._
 import spray.json.DefaultJsonProtocol
 import spray.json.DefaultJsonProtocol._
-
 import spray.can.Http
 import spray.can.server.Stats
 import spray.can.Http.RegisterChunkHandler
-
 import spray.httpx.marshalling.Marshaller
-
 import spray.routing.HttpService
 import spray.routing.RequestContext
 import spray.routing.RoutingSettings
-
 import DefaultJsonProtocol._
-
 import scala.concurrent.duration._
 import scala.collection.immutable.HashMap
 import scala.util.Random
 import scala.math.BigInt
-
 import java.util.Date
-
 import Nodes._
 import Common._
+import scala.collection.mutable.MutableList
+import java.util.Base64._
+import java.security._
 
 object Project4 extends App {
 
@@ -38,6 +33,8 @@ object Project4 extends App {
   IO(Http) ! Http.Bind(receiverActor, interface = "localhost", port = 8082)
 
   var userDB: Map[String, User] = new HashMap[String, User]()
+  var userKeyStore: Map[String, String] = new HashMap[String, String]()
+  var userRandomStrStore: Map[String, String] = new HashMap[String, String]()
   var pageDB: Map[String, Page] = new HashMap[String, Page]()
 
   class Server extends Actor with userTrait with postTrait with commentTrait with pageTrait {
@@ -52,6 +49,7 @@ object Project4 extends App {
   }
 
   trait userTrait extends HttpService {
+    import caseUser._
     import spray.httpx.SprayJsonSupport._
 
     val receivePathUser = {
@@ -68,7 +66,26 @@ object Project4 extends App {
             val userActor = serverActorSystem.actorOf(Props(new UserActor()))
             userActor ! serverGetUserInfo(requestContext, ofUser)
             userActor ! PoisonPill
-        }
+        } 
+      }~ get {
+        path(Segment / "authorize") { (ofUser) =>
+          requestContext =>
+            val userActor = serverActorSystem.actorOf(Props(new UserActor()))
+            userActor ! serverAuthorize(requestContext, ofUser)
+            userActor ! PoisonPill
+        } ~
+          path(Segment / "userList") { (ofUser) =>
+            requestContext =>
+              val userActor = serverActorSystem.actorOf(Props(new UserActor()))
+              userActor ! serverGetUserList(requestContext, ofUser)
+              userActor ! PoisonPill
+          } ~
+          path(Segment / "friendList") { (ofUser) =>
+            requestContext =>
+              val userActor = serverActorSystem.actorOf(Props(new UserActor()))
+              userActor ! serverGetFriendList(requestContext, ofUser)
+              userActor ! PoisonPill
+          }
       } ~ post {
         path(Segment / Segment / "sendRequest") { (sender, receiver) =>
           requestContext =>
@@ -103,19 +120,43 @@ object Project4 extends App {
         newUser.gender = newUserInfo.gender
         newUser.dateOfBirth = newUserInfo.dateOfBirth
         newUser.email = newUserInfo.email
+        newUser.storePublicKey = newUserInfo.storePublicKey
 
         userDB.+=(newUser.userID -> newUser)
+        userKeyStore.+=(newUser.userID -> newUser.storePublicKey)
+        //println(newUser.userID + "-----" + newUser.storePublicKey)
 
         requestContext.complete(newUser.userID)
 
       case serverGetUserInfo(reqContext: RequestContext, tempUserID: String) =>
-        
+
         var returnUser = new caseUser(userDB(tempUserID).userID, userDB(tempUserID).creationDate,
           userDB(tempUserID).firstName, userDB(tempUserID).lastName, userDB(tempUserID).gender,
-          userDB(tempUserID).dateOfBirth, userDB(tempUserID).email)
-        
+          userDB(tempUserID).dateOfBirth, userDB(tempUserID).email, userDB(tempUserID).storePublicKey)
+
         var returnCaseUser = returnUser.toJson
         reqContext.complete(returnCaseUser.toString())
+
+      case serverGetUserList(reqContext: RequestContext, tempUserID: String) =>
+        import spray.httpx.SprayJsonSupport._
+        reqContext.complete(userKeyStore.values.toList)
+
+      case serverAuthorize(reqContext: RequestContext, tempUserID: String) =>
+        import spray.httpx.SprayJsonSupport._
+        val random: SecureRandom = SecureRandom.getInstance("SHA1PRNG")
+        val randomVal = BigInt(128, random).toString(32);
+        userRandomStrStore += (tempUserID -> randomVal)
+        reqContext.complete(RSA.encrypt(randomVal, userDB(tempUserID).storePublicKey))
+
+      case serverGetFriendList(reqContext: RequestContext, tempUserID: String) =>
+        import spray.httpx.SprayJsonSupport._
+        var friends: Map[String, String] = userDB(tempUserID).friends
+        var encKeys: Map[String, String] = new HashMap[String, String]
+        for (s <- friends) {
+          //println(userKeyStore(s._1))
+          encKeys += (s._1 -> userKeyStore(s._1))
+        }
+        reqContext.complete(encKeys.keys.toList)
 
       case serverSendFriendRequest(requestContext: RequestContext, sender: String, receiver: String) =>
         if (userDB.get(receiver).get.pendingRequests.contains(sender)) {
@@ -159,15 +200,35 @@ object Project4 extends App {
             postActor ! PoisonPill
         }
       } ~ get {
-        path(Segment / "posts") { ofUser =>
+        path(Segment / Segment / "posts") { (ofUser, byUser) =>
           requestContext =>
             val postActor = serverActorSystem.actorOf(Props(new PostActor()))
-            postActor ! serverGetUserPosts(requestContext, ofUser)
+            postActor ! serverGetUserPosts(requestContext, ofUser, byUser)
+            postActor ! PoisonPill
+        } ~ path(Segment / Segment / "status") { (ofUser, byUser) =>
+          requestContext =>
+            val postActor = serverActorSystem.actorOf(Props(new PostActor()))
+            postActor ! serverGetUserStatus(requestContext, ofUser, byUser)
             postActor ! PoisonPill
         } ~ path(Segment / "postIds") { ofUser =>
           requestContext =>
             val postActor = serverActorSystem.actorOf(Props(new PostActor()))
             postActor ! serverGetUserPostIds(requestContext, ofUser)
+            postActor ! PoisonPill
+        } ~ path(Segment / "statusIds") { ofUser =>
+          requestContext =>
+            val postActor = serverActorSystem.actorOf(Props(new PostActor()))
+            postActor ! serverGetUserStatusIds(requestContext, ofUser)
+            postActor ! PoisonPill
+        } ~ path(Segment / Segment / Segment / "postContent") { (ofUser, byUser, postId) =>
+          requestContext =>
+            val postActor = serverActorSystem.actorOf(Props(new PostActor()))
+            postActor ! serverGetPostContent(requestContext, ofUser, byUser, postId)
+            postActor ! PoisonPill
+        } ~ path(Segment / Segment / Segment / "statusContent") { (ofUser, byUser, postId) =>
+          requestContext =>
+            val postActor = serverActorSystem.actorOf(Props(new PostActor()))
+            postActor ! serverGetStatusContent(requestContext, ofUser, byUser, postId)
             postActor ! PoisonPill
         }
       }
@@ -189,8 +250,15 @@ object Project4 extends App {
         newPost.content = newCasePost.content
         newPost.location = newCasePost.location
 
-        userDB(newPost.createdTo).posts += (newPost.postID -> newPost)
-        requestContext.complete("Posted on wall")
+        //print(RSA.decrypt(newCasePost.encStr, RSA.decodePublicKey(userDB(sender).storePublicKey)))
+
+        if(userRandomStrStore(sender) == newCasePost.encStr){
+        //if (sender == RSA.decrypt(newCasePost.encStr, RSA.decodePublicKey(userDB(sender).storePublicKey))) {
+          userDB(newPost.createdTo).posts += (newPost.postID -> newPost)
+          //requestContext.complete(sender + " posted on " + receiver + "'s wall !!!")
+        } else
+          newPost.content = "Access denied to Post"
+        requestContext.complete(newPost.content)
 
       case serverPostStatus(requestContext: RequestContext, sender: String, receiver: String, newCasePost: casePost) =>
 
@@ -200,21 +268,50 @@ object Project4 extends App {
         newPost.createdBy = sender
         newPost.creationDate = newCasePost.creationDate
         newPost.content = newCasePost.content
+        //println("Content:" + newPost.content)
         newPost.location = newCasePost.location
+        newPost.canSeeMap = newCasePost.shareWith
 
-        userDB(newPost.createdBy).status += (newPost.postID -> newPost)
-        requestContext.complete("Created Status by " + sender)
+        //newPost.canSeeMap.foreach(p => println(">>> key=" + p._1 + ", value=" + p._2))
 
-      case serverGetUserPosts(requestContext: RequestContext, ofUser: String) =>
+        //print(RSA.decrypt(newCasePost.encStr, RSA.decodePublicKey(userDB(sender).storePublicKey)))
+
+        if(userRandomStrStore(sender) == newCasePost.encStr){
+        //if (sender == RSA.decrypt(newCasePost.encStr, RSA.decodePublicKey(userDB(sender).storePublicKey))) {
+          userDB(newPost.createdBy).status += (newPost.postID -> newPost)
+          //print("\n" + newPost.postID + "---" + newCasePost.content)
+        } else
+          newPost.content = "Access denied to Post"
+        //requestContext.complete("Status posted by " + sender + " !!!")
+        requestContext.complete(newPost.content)
+
+      case serverGetUserPosts(requestContext: RequestContext, ofUser: String, byUser: String) =>
         import spray.httpx.SprayJsonSupport._
+        //print(ofUser)
         var postMap: Map[Long, Post] = userDB(ofUser).posts
+        //println("\nSize::"+ postMap.size)
         var returnPostMap: Map[Long, casePost] = new HashMap[Long, casePost]
 
         for ((k, v) <- postMap) {
-          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location)
+          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location, v.canSeeMap, "")
           returnPostMap += (k -> varCP)
         }
-        requestContext.complete(returnPostMap.keys.toList)
+        // if (returnPostMap.size > 0)
+        requestContext.complete(returnPostMap)
+
+      case serverGetUserStatus(requestContext: RequestContext, ofUser: String, byUser: String) =>
+        import spray.httpx.SprayJsonSupport._
+        //print(ofUser)
+        var postMap: Map[Long, Post] = userDB(ofUser).status
+        //println("\nSize::"+ postMap.size)
+        var returnPostMap: Map[Long, casePost] = new HashMap[Long, casePost]
+
+        for ((k, v) <- postMap) {
+          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location, v.canSeeMap, "")
+          returnPostMap += (k -> varCP)
+        }
+        // if (returnPostMap.size > 0)
+        requestContext.complete(returnPostMap)
 
       case serverGetUserPostIds(requestContext: RequestContext, ofUser: String) =>
         import spray.httpx.SprayJsonSupport._
@@ -222,10 +319,49 @@ object Project4 extends App {
         var returnPostMap: Map[Long, casePost] = new HashMap[Long, casePost]
 
         for ((k, v) <- postMap) {
-          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location)
+          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location, v.canSeeMap, "")
           returnPostMap += (k -> varCP)
         }
         requestContext.complete(returnPostMap.keys.toList)
+
+      case serverGetUserStatusIds(requestContext: RequestContext, ofUser: String) =>
+        import spray.httpx.SprayJsonSupport._
+        var postMap: Map[Long, Post] = userDB(ofUser).status
+        var returnPostMap: Map[Long, casePost] = new HashMap[Long, casePost]
+
+        for ((k, v) <- postMap) {
+          var varCP = new casePost(v.createdTo, v.creationDate, v.content, v.location, v.canSeeMap, "")
+          returnPostMap += (k -> varCP)
+        }
+        requestContext.complete(returnPostMap.keys.toList)
+
+      case serverGetPostContent(requestContext: RequestContext, ofUser: String, byUser: String, postId: String) =>
+        import spray.httpx.SprayJsonSupport._
+        var content: String = new String()
+        var canSeeMap: Map[String, String] = userDB(ofUser).posts(postId.toLong).canSeeMap
+        canSeeMap.foreach(p => println("<<< key=" + p._1 + ", value=" + p._2))
+        //print("post" + ofUser + " !!! " + byUser)
+        if (canSeeMap.keySet.exists(_ == byUser)) {
+          content = userDB(ofUser).posts(postId.toLong).content + "," + canSeeMap(byUser)
+        } else {
+          content = "Access Denied"
+          //print("Access Denied")
+        }
+        requestContext.complete(content)
+
+      case serverGetStatusContent(requestContext: RequestContext, ofUser: String, byUser: String, postId: String) =>
+        import spray.httpx.SprayJsonSupport._
+        var content: String = new String()
+        var canSeeMap: Map[String, String] = userDB(ofUser).status(postId.toLong).canSeeMap
+        //canSeeMap.foreach(p => println("<<< key=" + p._1 + ", value=" + p._2))
+        //print("status-" + ofUser + " !!! " + byUser)
+        if (canSeeMap.keySet.exists(_ == byUser)) {
+          content = userDB(ofUser).status(postId.toLong).content + "," + canSeeMap(byUser)
+        } else {
+          content = "Access Denied"
+          //print("Access Denied")
+        }
+        requestContext.complete(content)
     }
   }
 
@@ -330,5 +466,3 @@ object Project4 extends App {
   }
 
 }
-
-

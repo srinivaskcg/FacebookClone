@@ -19,6 +19,8 @@ class User() {
 
   var creationDate: String = new String()
   var email: String = new String()
+  var storePublicKey: String = new String()
+  var token: String = new String()
 
   var pendingRequests: Map[String, String] = new HashMap[String, String]
   var friends: Map[String, String] = new HashMap[String, String]
@@ -27,4 +29,3 @@ class User() {
   var status: HashMap[Long, Post] = new HashMap[Long, Post]()
   var pages: Map[String, Page] = new HashMap[String, Page]()
 }
- 

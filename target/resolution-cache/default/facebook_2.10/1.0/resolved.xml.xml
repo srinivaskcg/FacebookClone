@@ -4,7 +4,7 @@
 		module="facebook_2.10"
 		revision="1.0"
 		status="integration"
-		publication="20151130201829"
+		publication="20151215113802"
 	>
 		<description>
 		Facebook
@@ -45,5 +45,6 @@
 		<dependency org="org.json4s" name="json4s-ext_2.10" rev="3.2.11" conf="compile->default(compile)"/>
 		<dependency org="org.json4s" name="json4s-native_2.10" rev="3.2.11" conf="compile->default(compile)"/>
 		<dependency org="org.json4s" name="json4s-core_2.10" rev="3.2.11" conf="compile->default(compile)"/>
+		<dependency org="commons-codec" name="commons-codec" rev="1.9" conf="compile->default(compile)"/>
 	</dependencies>
 </ivy-module>

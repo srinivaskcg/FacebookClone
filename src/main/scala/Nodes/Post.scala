@@ -9,6 +9,8 @@ class Post {
   var createdTo: String = new String()
   var creationDate: String = new String()
   var content: String = new String()
+  var shareWith: String = new String()
+  var canSeeMap: Map[String, String] = new HashMap[String, String]()
 
   var location: String = new String()
   //var likes: HashMap[Long, String] = new HashMap[Long, String]()

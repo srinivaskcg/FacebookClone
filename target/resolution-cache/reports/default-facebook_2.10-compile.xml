@@ -7,15 +7,26 @@
 		revision="1.0"
 		conf="compile"
 		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool"
-		date="20151130201830"/>
+		date="20151215113802"/>
 	<dependencies>
+		<module organisation="commons-codec" name="commons-codec">
+			<revision name="1.9" status="release" pubdate="20131220225739" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://commons.apache.org/proper/commons-codec/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="33">
+				<metadata-artifact status="no" details="" size="9848" time="0" location="C:\Users\KALYAN\.ivy2\cache\commons-codec\commons-codec\ivy-1.9.xml" searched="false" origin-is-local="false" origin-location="file:////E:/Softwares/typesafe-activator-1.3.6/activator-dist-1.3.6/repository/commons-codec/commons-codec/1.9/ivys/ivy.xml"/>
+				<caller organisation="default" name="facebook_2.10" conf="compile" rev="1.9" rev-constraint-default="1.9" rev-constraint-dynamic="1.9" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="commons-codec" type="jar" ext="jar" status="no" details="" size="263965" time="0" location="C:\Users\KALYAN\.ivy2\cache\commons-codec\commons-codec\jars\commons-codec-1.9.jar">
+						<origin-location is-local="false" location="file:////E:/Softwares/typesafe-activator-1.3.6/activator-dist-1.3.6/repository/commons-codec/commons-codec/1.9/jars/commons-codec.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
 		<module organisation="org.json4s" name="json4s-ext_2.10">
-			<revision name="3.2.11" status="release" pubdate="20141023210904" resolver="public" artresolver="public" homepage="https://github.com/json4s/json4s" downloaded="true" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="29">
+			<revision name="3.2.11" status="release" pubdate="20141023210904" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/json4s/json4s" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="29">
 				<license name="ASL" url="http://github.com/json4s/json4s/raw/HEAD/LICENSE"/>
-				<metadata-artifact status="successful" details="" size="2558" time="431" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-ext_2.10\ivy-3.2.11.xml" searched="true" original-local-location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-ext_2.10\ivy-3.2.11.xml.original" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/json4s/json4s-ext_2.10/3.2.11/json4s-ext_2.10-3.2.11.pom"/>
+				<metadata-artifact status="no" details="" size="2954" time="0" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-ext_2.10\ivy-3.2.11.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/json4s/json4s-ext_2.10/3.2.11/json4s-ext_2.10-3.2.11.pom"/>
 				<caller organisation="default" name="facebook_2.10" conf="compile" rev="3.2.11" rev-constraint-default="3.2.11" rev-constraint-dynamic="3.2.11" callerrev="1.0"/>
 				<artifacts>
-					<artifact name="json4s-ext_2.10" type="jar" ext="jar" status="successful" details="" size="82097" time="691" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-ext_2.10\jars\json4s-ext_2.10-3.2.11.jar">
+					<artifact name="json4s-ext_2.10" type="jar" ext="jar" status="no" details="" size="82097" time="0" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-ext_2.10\jars\json4s-ext_2.10-3.2.11.jar">
 						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/json4s/json4s-ext_2.10/3.2.11/json4s-ext_2.10-3.2.11.jar"/>
 					</artifact>
 				</artifacts>
@@ -46,12 +57,12 @@
 			</revision>
 		</module>
 		<module organisation="org.json4s" name="json4s-native_2.10">
-			<revision name="3.2.11" status="release" pubdate="20141023210851" resolver="public" artresolver="public" homepage="https://github.com/json4s/json4s" downloaded="true" searched="true" default="false" conf="default, compile, runtime, default(compile), master" position="32">
+			<revision name="3.2.11" status="release" pubdate="20141023210851" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/json4s/json4s" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="32">
 				<license name="ASL" url="http://github.com/json4s/json4s/raw/HEAD/LICENSE"/>
-				<metadata-artifact status="successful" details="" size="2199" time="396" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-native_2.10\ivy-3.2.11.xml" searched="true" original-local-location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-native_2.10\ivy-3.2.11.xml.original" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/json4s/json4s-native_2.10/3.2.11/json4s-native_2.10-3.2.11.pom"/>
+				<metadata-artifact status="no" details="" size="2710" time="0" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-native_2.10\ivy-3.2.11.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/json4s/json4s-native_2.10/3.2.11/json4s-native_2.10-3.2.11.pom"/>
 				<caller organisation="default" name="facebook_2.10" conf="compile" rev="3.2.11" rev-constraint-default="3.2.11" rev-constraint-dynamic="3.2.11" callerrev="1.0"/>
 				<artifacts>
-					<artifact name="json4s-native_2.10" type="jar" ext="jar" status="successful" details="" size="69460" time="558" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-native_2.10\jars\json4s-native_2.10-3.2.11.jar">
+					<artifact name="json4s-native_2.10" type="jar" ext="jar" status="no" details="" size="69460" time="0" location="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-native_2.10\jars\json4s-native_2.10-3.2.11.jar">
 						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/json4s/json4s-native_2.10/3.2.11/json4s-native_2.10-3.2.11.jar"/>
 					</artifact>
 				</artifacts>

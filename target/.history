@@ -14,3 +14,11 @@ reload
 eclipse
 run
 run 10000
+update
+eclipse
+update
+eclipse
+reload
+update
+reload
+eclipse

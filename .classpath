@@ -33,6 +33,7 @@
   <classpathentry kind="lib" path="C:\Users\KALYAN\.ivy2\cache\joda-time\joda-time\jars\joda-time-2.3.jar"/>
   <classpathentry kind="lib" path="C:\Users\KALYAN\.ivy2\cache\org.joda\joda-convert\jars\joda-convert-1.6.jar"/>
   <classpathentry kind="lib" path="C:\Users\KALYAN\.ivy2\cache\org.json4s\json4s-native_2.10\jars\json4s-native_2.10-3.2.11.jar"/>
+  <classpathentry kind="lib" path="C:\Users\KALYAN\.ivy2\cache\commons-codec\commons-codec\jars\commons-codec-1.9.jar"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="output" path="bin"/>
 </classpath>

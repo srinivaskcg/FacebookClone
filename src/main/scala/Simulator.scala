@@ -25,6 +25,7 @@ object Constants {
   val today = Calendar.getInstance().getTime().toString()
   val birthDate = Calendar.getInstance().getTime().toString()
   val action = "accept"
+  var possibleShare: List[String] = List("All", "Friends", "Self")
 }
 
 object Simulation extends App {
@@ -42,40 +43,49 @@ object Simulation extends App {
 
     var UserActor = facebookUserSystem.actorOf(Props[Client.User], "UserActor" + actor)
 
-    val newUser: caseUser = new caseUser("userId" + actor, Constants.today, "firstName" + actor, "lastName" + actor,
-      Constants.possibleGender(Random.nextInt(Constants.possibleGender.length)), Constants.birthDate, "email" + actor)
-
     println("User creation requested by " + "userId" + actor)
 
-    UserActor ! registerUser(newUser)
+    UserActor ! registerUser("userId" + actor, Constants.today, "firstName" + actor, "lastName" + actor,
+      Constants.possibleGender(Random.nextInt(Constants.possibleGender.length)), Constants.birthDate, "email" + actor)
     simActorMap.+=("userId" + actor -> UserActor)
+    
+    UserActor ! authorize("userId" + actor)
   }
 
-  Thread.sleep(userCount * 1)
+  Thread.sleep(userCount * 20)
 
   facebookUserSystem.scheduler.schedule(
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleFriendRequest)
-    
+
   facebookUserSystem.scheduler.schedule(
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleGetUserInfo)
 
-  facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdateStatus)
+  /*facebookUserSystem.scheduler.schedule(
+    Duration.create(10000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleGetUserList)
 
   facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleUpdatePost)
+    Duration.create(10000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleGetFriendList)*/
 
   facebookUserSystem.scheduler.schedule(
-      Duration.create(2000, TimeUnit.MILLISECONDS), Duration.create(2000, TimeUnit.MILLISECONDS))(scheduleGetUserPosts)
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleUpdatePost)
 
   facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(1000, TimeUnit.MILLISECONDS))(schedulePostComments)
+    Duration.create(10000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleGetUserPosts)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleUpdateStatus)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(10000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(scheduleGetUserStatus)
+
+  facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(schedulePostComments)
 
   facebookUserSystem.scheduler.schedule(
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(10000, TimeUnit.MILLISECONDS))(schedulePageCreation)
 
-  facebookUserSystem.scheduler.schedule(
-    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(4000, TimeUnit.MILLISECONDS))(schedulePagePosts)
+  /*facebookUserSystem.scheduler.schedule(
+    Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(4000, TimeUnit.MILLISECONDS))(schedulePagePosts)*/
 
   facebookUserSystem.scheduler.schedule(
     Duration.create(5000, TimeUnit.MILLISECONDS), Duration.create(5000, TimeUnit.MILLISECONDS))(schedulePageLikes)
@@ -93,27 +103,41 @@ object Simulation extends App {
 
     simActorMap(randomReceiver) ! manageFriendRequest(randomSender, Constants.action)
   }
-  
+
   def scheduleGetUserInfo() = {
     var sender = getRandomUsers()._2._1
     var send = getRandomUsers()._1._1
     sender ! getUserInfo(send)
   }
 
+  def scheduleGetFriendList() = {
+    var sender = getRandomUsers()._2._1
+    var send = getRandomUsers()._1._1
+    sender ! getFriendList(send)
+  }
+
+  def scheduleGetUserList() = {
+    var sender = getRandomUsers()._2._1
+    var send = getRandomUsers()._1._1
+    sender ! getUserList(send)
+  }
+
   def scheduleUpdateStatus() = {
     var sender = getRandomUsers()._2._1
     var send = getRandomUsers()._1._1
 
-    val newStatusPost: casePost = new casePost(send, Constants.today, "Status" + sender, "Gainesville")
-    sender ! postOnOwnWall(newStatusPost)
+    //  val newStatusPost: casePost = new casePost(send, Constants.today, encrypt(key, initVector, "Status" + sender), "Gainesville",
+    //    Constants.possibleShare(Random.nextInt(Constants.possibleShare.length)))
+    sender ! postOnOwnWall(send, Constants.today, "Status" + send, "Gainesville",
+      Constants.possibleShare(Random.nextInt(Constants.possibleShare.length)))
   }
 
   def scheduleUpdatePost() = {
     var sender = getRandomUsers()._2._1
     var receive = getRandomUsers()._1._2
 
-    val newWallPost: casePost = new casePost(receive, Constants.today, "Status" + sender, "Gainesville")
-    sender ! postOnWall(newWallPost)
+    //val newWallPost: casePost = new casePost(receive, Constants.today, "Status" + sender, "Gainesville", "All")
+    sender ! postOnWall(receive, Constants.today, "Status" + getRandomUsers()._1._1, "Gainesville", "All")
   }
 
   def scheduleGetUserPosts() = {
@@ -124,7 +148,18 @@ object Simulation extends App {
     var randomReceiver = randomVar._1._2
     var randomSender = randomVar._1._1
 
-    sender ! getUserPosts(randomReceiver)
+    sender ! getUserPosts(randomReceiver, randomSender)
+  }
+
+  def scheduleGetUserStatus() = {
+
+    var randomVar = getRandomUsers()
+    var sender = randomVar._2._1
+    var receiver = randomVar._2._2
+    var randomReceiver = randomVar._1._2
+    var randomSender = randomVar._1._1
+
+    sender ! getUserStatus(randomReceiver)
   }
 
   def schedulePostComments() = {
@@ -150,7 +185,7 @@ object Simulation extends App {
     actor ! createPage(casePage)
   }
 
-  def schedulePagePosts() = {
+  /*def schedulePagePosts() = {
     var randomVar = getRandomUsers()
 
     var actor = randomVar._2._1
@@ -158,10 +193,11 @@ object Simulation extends App {
 
     var randPageId: String = "page" + Random.nextInt(pageIndex)
 
-    val newPagePost: casePost = new casePost(createdBy, Constants.today, "PagePost", "Gainesville")
+    val newPagePost: casePost = new casePost(createdBy, Constants.today, "PagePost", "Gainesville", "All")
 
     actor ! createPagePost(randPageId, newPagePost)
-  }
+    actor ! createPagePost(randPageId, createdBy, Constants.today, "PagePost", "Gainesville", "All")
+  }*/
 
   def schedulePageLikes() = {
     var randomVar = getRandomUsers()
